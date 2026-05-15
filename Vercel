@@ -1,0 +1,30 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/santeplus_site.html"
+    },
+    {
+      "src": "/app",
+      "dest": "/santeplus_app.html"
+    },
+    {
+      "src": "/admin",
+      "dest": "/santeplus_login.html"
+    },
+    {
+      "src": "/dashboard",
+      "dest": "/santeplus_admin.html"
+    },
+    {
+      "src": "/inscription-medecin",
+      "dest": "/santeplus_inscription_medecin.html"
+    },
+    {
+      "src": "/login",
+      "dest": "/santeplus_login.html"
+    }
+  ]
+}
