@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>SantéPlus — Application</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --g:#00563C;--g2:#007A55;--g3:#D6EFE4;--g4:#EBF7F2;
+  --gold:#FCD116;--goldd:#A88A00;
+  --bl:#1849D6;--bll:#EBF0FF;
+  --red:#D93025;--redbg:#FFF0EF;
+  --ora:#C2410C;--orabg:#FFF4EC;
+  --ink:#0D1117;--ink2:#1F2937;--ink3:#4B5563;--ink4:#9CA3AF;
+  --bg:#F4F7F5;--card:#fff;--bdr:#E2E8E4;--bdr2:#EDF1EE;
+  --r8:8px;--r10:10px;--r12:12px;--r16:16px;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 3px 12px rgba(0,0,0,.05);
+}
+html{height:100%;overflow:hidden}
+body{font-family:'DM Sans',sans-serif;background:#E8EAE8;color:var(--ink);font-size:14px;line-height:1.6;height:100%;display:flex;align-items:center;justify-content:center}
+.phone-frame{width:100%;max-width:430px;height:100vh;max-height:900px;background:var(--bg);display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.2)}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--g);padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:20}
+.tb-logo{display:flex;align-items:center;gap:8px}
+.tb-sq{background:var(--gold);color:var(--g);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:14px}
+.tb-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff}
+.tb-name em{color:var(--gold);font-style:normal}
+.tb-r{display:flex;align-items:center;gap:12px}
+.tb-notif{color:rgba(255,255,255,.7);font-size:20px;cursor:pointer;position:relative}
+.notif-dot{position:absolute;top:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#EF4444;border:2px solid var(--g)}
+.tb-av{background:var(--gold);color:var(--g);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;cursor:pointer}
+
+/* ── CONTENT ── */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:64px}
+.content::-webkit-scrollbar{display:none}
+
+/* ── SCREENS ── */
+.sc{display:none;min-height:100%}
+.sc.on{display:block}
+
+/* ── HOME ── */
+.app-hero{background:linear-gradient(148deg,#002E20,var(--g));padding:20px 16px 24px;position:relative;overflow:hidden}
+.app-hero::after{content:'🇬🇦';position:absolute;right:12px;bottom:8px;font-size:72px;opacity:.07;pointer-events:none}
+.app-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.16);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:700;color:rgba(255,255,255,.88);margin-bottom:12px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#4ADE80;animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.app-hero h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:7px}
+.app-hero h1 em{color:var(--gold);font-style:normal}
+.app-hero p{font-size:12px;color:rgba(255,255,255,.7);margin-bottom:18px;line-height:1.6}
+.search-box{background:#fff;border-radius:var(--r10);padding:8px;display:flex;gap:6px}
+.sb-f{display:flex;align-items:center;gap:6px;flex:1;border-right:1px solid var(--bdr);padding-right:8px}
+.sb-f input{border:none;outline:none;font-size:12px;color:var(--ink);background:transparent;width:100%;font-family:'DM Sans',sans-serif}
+.sb-f input::placeholder{color:var(--ink4)}
+.sb-sel{border:none;outline:none;font-size:11px;color:var(--ink);background:transparent;font-family:'DM Sans',sans-serif;padding:0 6px;cursor:pointer}
+.sb-go{background:var(--g);color:#fff;border:none;border-radius:var(--r8);padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer}
+
+/* CNAMGS BANNER */
+.cnam-banner{background:linear-gradient(135deg,#003F7F,#1849D6);margin:12px 12px 0;border-radius:var(--r10);padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:opacity .15s}
+.cnam-banner:hover{opacity:.92}
+.cb-icon{width:38px;height:38px;background:rgba(255,255,255,.13);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.cb-t{font-size:12px;font-weight:700;color:#fff;margin-bottom:2px}
+.cb-s{font-size:10px;color:rgba(255,255,255,.65)}
+.cb-arr{color:rgba(255,255,255,.4);font-size:18px;margin-left:auto}
+
+/* SPEC PILLS */
+.spec-scroll{display:flex;gap:7px;overflow-x:auto;padding:12px 12px 4px;scrollbar-width:none}
+.spec-scroll::-webkit-scrollbar{display:none}
+.sp{display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:10px 11px;cursor:pointer;min-width:62px;transition:all .15s;box-shadow:var(--sh)}
+.sp:hover,.sp.on{border-color:var(--g);background:var(--g4)}
+.sp-em{font-size:18px}
+.sp-l{font-size:9px;font-weight:600;color:var(--ink2);text-align:center}
+
+/* SECTION */
+.sec-row{display:flex;justify-content:space-between;align-items:center;padding:12px 12px 6px}
+.sec-t{font-size:13px;font-weight:700;color:var(--ink)}
+.sec-more{font-size:11px;color:var(--g);font-weight:600;cursor:pointer;background:none;border:none}
+
+/* DOC CARD */
+.doc-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);padding:12px;margin:0 12px 8px;cursor:pointer;display:flex;gap:11px;transition:all .15s;box-shadow:var(--sh)}
+.doc-card:hover{border-color:var(--g2);box-shadow:0 4px 16px rgba(0,86,60,.1)}
+.doc-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0;border:2px solid}
+.doc-body{flex:1;min-width:0}
+.doc-name{font-size:13px;font-weight:700;color:var(--ink)}
+.doc-spec{font-size:11px;font-weight:600;margin-top:1px}
+.doc-lieu{font-size:10px;color:var(--ink4);margin-top:2px}
+.doc-meta{display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
+.doc-slots{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.dslot{background:var(--g4);color:var(--g);border:1px solid var(--g3);border-radius:5px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer}
+.dslot:hover{background:var(--g);color:#fff}
+.pill{font-size:9px;font-weight:800;padding:2px 7px;border-radius:9px;display:inline-flex;align-items:center;gap:2px}
+.p-g{background:var(--g4);color:var(--g)}
+.p-b{background:var(--bll);color:var(--bl)}
+.p-o{background:var(--orabg);color:var(--ora)}
+.p-r{background:var(--redbg);color:var(--red)}
+.star{color:#F59E0B}
+
+/* CARTE */
+#map{width:100%;height:calc(100vh - 56px - 64px)}
+
+/* RDV */
+.rdv-wrap{padding:14px 12px}
+.rdv-tabs{display:flex;background:#E8EBE9;border-radius:10px;padding:3px;gap:3px;margin-bottom:12px}
+.rdv-tab{flex:1;text-align:center;padding:7px;border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;color:var(--ink3);border:none;background:transparent;font-family:'Syne',sans-serif}
+.rdv-tab.on{background:#fff;color:var(--g);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.rdv-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);padding:13px;margin-bottom:9px;display:flex;gap:11px;box-shadow:var(--sh)}
+.rdv-date{background:var(--g);color:#fff;border-radius:9px;padding:8px 10px;text-align:center;flex-shrink:0;min-width:44px}
+.rdv-d{font-size:19px;font-weight:800;line-height:1}
+.rdv-m{font-size:9px;text-transform:uppercase;opacity:.8;margin-top:1px}
+.rdv-body{flex:1;min-width:0}
+.rdv-doc{font-size:13px;font-weight:700}
+.rdv-sp{font-size:10px;color:var(--ink4);margin-top:1px}
+.rdv-time{font-size:11px;color:var(--g);font-weight:700;margin-top:4px}
+.rdv-nag{font-size:9px;color:var(--bl);font-family:'IBM Plex Mono',monospace;background:var(--bll);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:3px}
+.rdv-actions{display:flex;gap:6px;margin-top:8px}
+.r-btn{font-size:10px;padding:4px 10px;border-radius:6px;border:1px solid var(--bdr);background:transparent;color:var(--ink3);cursor:pointer;font-family:'Syne',sans-serif}
+.r-btn.danger:hover{border-color:#FCA5A5;color:var(--red);background:var(--redbg)}
+.notice{background:var(--bll);border:1px solid #BFDBFE;border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--bl);display:flex;gap:7px;margin-bottom:10px;line-height:1.5}
+
+/* DÉPENSES */
+.dep-hero{background:linear-gradient(150deg,#003D2A,var(--g));padding:18px 14px 22px}
+.dep-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.dep-c{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);border-radius:var(--r10);padding:12px}
+.dep-c.green{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.2)}
+.dep-c.gold{background:rgba(252,209,22,.1);border-color:rgba(252,209,22,.2)}
+.dep-cl{font-size:9px;color:rgba(255,255,255,.55);margin-bottom:4px;font-weight:600;letter-spacing:.3px}
+.dep-cn{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#fff;line-height:1}
+.dep-cn.green{color:#4ADE80}
+.dep-cn.gold{color:var(--gold)}
+.dep-cs{font-size:9px;color:rgba(255,255,255,.45);margin-top:2px}
+.period-row{display:flex;gap:5px}
+.per-btn{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:6px;padding:5px;text-align:center;font-size:10px;font-weight:600;color:rgba(255,255,255,.6);cursor:pointer;font-family:'Syne',sans-serif}
+.per-btn.on{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.35)}
+.rep-block{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r10);margin:10px 12px;padding:12px;box-shadow:var(--sh)}
+.rep-bar-wrap{height:10px;background:var(--bg);border-radius:5px;overflow:hidden;display:flex;margin:7px 0}
+.rep-bar-pat{background:var(--ora);height:100%;border-radius:5px 0 0 5px}
+.rep-bar-cnam{background:var(--g);height:100%;flex:1;border-radius:0 5px 5px 0}
+.rep-leg{display:flex;justify-content:space-between}
+.rep-l{display:flex;align-items:center;gap:5px;font-size:11px}
+.rep-dot{width:8px;height:8px;border-radius:50%}
+.dep-month-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--ink4);padding:10px 12px 2px;display:flex;justify-content:space-between}
+.dep-item{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r10);margin:0 12px 7px;overflow:hidden;cursor:pointer;box-shadow:var(--sh)}
+.dep-item.open .dep-detail{display:block}
+.dep-hdr{padding:12px;display:flex;gap:10px;align-items:center}
+.dep-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.dep-main{flex:1;min-width:0}
+.dep-name{font-size:12px;font-weight:700;color:var(--ink)}
+.dep-meta{font-size:10px;color:var(--ink4);margin-top:1px}
+.dep-right{text-align:right;flex-shrink:0}
+.dep-total{font-size:13px;font-weight:800;color:var(--ink)}
+.dep-arrow{color:var(--ink4);font-size:12px;margin-left:4px;transition:transform .2s}
+.dep-item.open .dep-arrow{transform:rotate(180deg)}
+.dep-detail{display:none;border-top:1px solid var(--bdr);padding:12px;background:var(--bg)}
+.bb{border-radius:var(--r8);overflow:hidden;margin:8px 0}
+.bb-row{display:flex;justify-content:space-between;padding:8px 10px;font-size:11px}
+.bb-total{background:var(--ink);color:#fff}
+.bb-cnam{background:var(--g4);color:var(--g)}
+.bb-pat{background:var(--orabg);color:var(--ora)}
+
+/* e-CNAMGS */
+.cnamgs-wrap{padding:0 0 12px}
+.cnam-hero{background:linear-gradient(150deg,#002B5C,var(--bl));padding:20px 14px}
+.cnam-hero h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;color:#fff;margin-bottom:4px}
+.cnam-hero p{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5}
+/* ⭐ LE VRAI BOUTON e-CNAMGS */
+.ecnam-link{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r8);padding:11px 14px;margin-top:14px;cursor:pointer;text-decoration:none;transition:all .15s}
+.ecnam-link:hover{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35)}
+.ecl-dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;flex-shrink:0;animation:blink 2s infinite}
+.ecl-text{flex:1}
+.ecl-title{font-size:12px;font-weight:700;color:#fff}
+.ecl-url{font-size:10px;color:rgba(255,255,255,.5);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.ecl-arrow{color:rgba(255,255,255,.5);font-size:16px;flex-shrink:0}
+.ecnam-note{background:rgba(255,255,255,.08);border-radius:var(--r8);padding:10px 12px;margin-top:10px;font-size:11px;color:rgba(255,255,255,.65);line-height:1.5}
+
+.nag-card{background:linear-gradient(135deg,#003F7F,#1849D6);border-radius:var(--r14,14px);padding:18px;color:#fff;position:relative;overflow:hidden;margin:12px}
+.nag-card::after{content:'';position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.05)}
+.nag-l{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;opacity:.55;margin-bottom:7px}
+.nag-n{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:12px}
+.nag-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nag-f{background:rgba(255,255,255,.07);border-radius:7px;padding:8px 10px}
+.nag-fl{font-size:8px;opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px}
+.nag-fv{font-size:11px;font-weight:600}
+.nag-status{display:flex;align-items:center;gap:5px;margin-top:12px;font-size:11px;color:#4ADE80;font-weight:600}
+.nag-sdot{width:6px;height:6px;border-radius:50%;background:#4ADE80}
+.regime-tabs{display:flex;gap:3px;margin:10px 12px;background:rgba(24,73,214,.08);border-radius:9px;padding:3px}
+.rt{flex:1;text-align:center;padding:7px;border-radius:7px;cursor:pointer;font-size:10px;font-weight:600;color:var(--ink3);border:none;background:transparent;font-family:'Syne',sans-serif;transition:all .15s}
+.rt.on{background:var(--bl);color:#fff}
+.remb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 12px}
+.remb-c{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r8);padding:12px;text-align:center;box-shadow:var(--sh)}
+.remb-n{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;line-height:1;margin-bottom:3px}
+.remb-l{font-size:9px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;color:var(--ink4)}
+.info-block{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);margin:0 12px 10px;padding:14px;box-shadow:var(--sh)}
+.info-sec-t{font-size:12px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr2);font-size:12px}
+.info-row:last-child{border-bottom:none}
+.ir-l{color:var(--ink3)}
+.ir-v{font-weight:600;color:var(--ink)}
+
+/* PROFIL */
+.prof-hero{background:linear-gradient(150deg,#003D2A,var(--g));padding:22px 16px;text-align:center}
+.prof-av{width:66px;height:66px;border-radius:50%;background:var(--gold);color:var(--g);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;margin:0 auto 10px;border:3px solid rgba(255,255,255,.3)}
+.prof-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:3px}
+.prof-nag{display:inline-block;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.9);margin-top:5px}
+.prof-regime{display:inline-block;background:var(--gold);color:var(--g);border-radius:5px;padding:2px 10px;font-size:9px;font-weight:800;margin-top:8px;text-transform:uppercase;letter-spacing:.5px}
+.prof-block{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);margin:10px 12px;padding:14px;box-shadow:var(--sh)}
+.prof-block-t{font-size:12px;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--bdr)}
+.prof-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bdr2);font-size:12px}
+.prof-row:last-child{border-bottom:none}
+.pr-l{color:var(--ink3)}
+.pr-v{font-weight:600;color:var(--ink)}
+.btn-save{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r10);padding:11px;font-size:12px;font-weight:700;cursor:pointer;margin-top:12px;font-family:'Syne',sans-serif}
+
+/* BOTTOM NAV */
+.bnav{position:absolute;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--bdr);display:flex;height:64px;z-index:20}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:transparent;color:var(--ink4);font-size:9px;font-weight:600;font-family:'Syne',sans-serif;transition:color .15s}
+.bn-ic{font-size:20px}
+.bn.on{color:var(--g)}
+.bn-badge{position:relative}
+.bn-badge::after{content:'2';position:absolute;top:-2px;right:-9px;background:#EF4444;color:#fff;border-radius:8px;font-size:7px;font-weight:800;padding:1px 3px}
+
+/* BOOKING OVERLAY */
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:50;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet{background:var(--card);border-radius:20px 20px 0 0;padding:20px;max-height:88%;overflow-y:auto}
+.sheet-handle{width:36px;height:4px;background:var(--bdr);border-radius:2px;margin:0 auto 14px}
+.sheet-t{font-size:15px;font-weight:800;margin-bottom:2px}
+.sheet-s{font-size:11px;color:var(--ink3);margin-bottom:14px}
+.day-strip{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.day-strip::-webkit-scrollbar{display:none}
+.day-c{flex-shrink:0;border:1px solid var(--bdr);border-radius:9px;padding:7px 10px;text-align:center;cursor:pointer;min-width:46px;transition:all .15s}
+.day-c.on{border-color:var(--g);background:var(--g4)}
+.day-c.on .dc-n{color:var(--g)}
+.dc-n{font-size:16px;font-weight:800;color:var(--ink)}
+.dc-nm{font-size:9px;color:var(--ink4)}
+.slots-pick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.slot-o{border:1px solid var(--bdr);background:var(--bg);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:700;cursor:pointer;color:var(--ink2);font-family:'Syne',sans-serif;transition:all .15s}
+.slot-o.on{border-color:var(--g);background:var(--g4);color:var(--g)}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.fg label{font-size:10px;font-weight:700;color:var(--ink3)}
+.fg input,.fg select{border:1px solid var(--bdr);border-radius:var(--r8);padding:9px 12px;font-size:12px;color:var(--ink);background:var(--bg);width:100%;font-family:'DM Sans',sans-serif}
+.nag-banner{background:var(--bll);border:1px solid #BFDBFE;border-radius:var(--r8);padding:10px 12px;display:flex;gap:7px;font-size:11px;color:var(--bl);margin:10px 0;line-height:1.5;align-items:flex-start}
+.taux{display:inline-block;background:var(--g4);color:var(--g);border-radius:5px;padding:1px 7px;font-size:10px;font-weight:800;margin-left:4px}
+.btn-confirm{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r12);padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif}
+.btn-cancel-book{width:100%;background:none;border:none;color:var(--ink4);font-size:11px;padding:10px;cursor:pointer;margin-top:4px}
+.success-wrap{text-align:center;padding:12px 0}
+.succ-icon{font-size:52px;margin-bottom:10px}
+.succ-t{font-size:19px;font-weight:800;color:var(--g);margin-bottom:5px}
+.succ-s{font-size:12px;color:var(--ink3);margin-bottom:14px;line-height:1.5}
+.sms-note{border-radius:var(--r8);padding:9px 12px;font-size:11px;margin-bottom:10px;display:flex;gap:6px;align-items:flex-start}
+.sms-ok{background:var(--g4);color:var(--g)}
+.sms-bl{background:var(--bll);color:var(--bl)}
+.btn-done{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r12);padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+
+/* TOAST */
+.toast{position:absolute;bottom:74px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;border-radius:var(--r10);padding:9px 16px;font-size:12px;font-weight:700;display:none;align-items:center;gap:6px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:100;white-space:nowrap}
+.toast.show{display:flex}
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-logo">
+      <div class="tb-sq">S+</div>
+      <div class="tb-name">Santé<em>Plus</em></div>
+    </div>
+    <div class="tb-r">
+      <div class="tb-notif">🔔<div class="notif-dot"></div></div>
+      <div class="tb-av" onclick="showSc('profil');setBN(4)">KM</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HOME -->
+    <div id="sc-home" class="sc on">
+      <div class="app-hero">
+        <div class="app-chip"><div class="live-dot"></div>Connecté · Gabon 🇬🇦</div>
+        <h1>Votre santé,<br><em>simplifiée</em></h1>
+        <p>RDV en ligne · NAG vérifié · 9 provinces du Gabon</p>
+        <div class="search-box">
+          <div class="sb-f">
+            <span style="font-size:15px;color:var(--ink4)">🔍</span>
+            <input type="text" id="sq" placeholder="Spécialité, médecin..." oninput="liveSearch()">
+          </div>
+          <select class="sb-sel" id="sv" onchange="liveSearch()">
+            <option value="">Toutes</option>
+            <option>Libreville</option><option>Port-Gentil</option>
+            <option>Franceville</option><option>Oyem</option>
+          </select>
+          <button class="sb-go" onclick="liveSearch()">OK</button>
+        </div>
+      </div>
+
+      <div class="cnam-banner" onclick="showSc('cnamgs');setBN(2)">
+        <div class="cb-icon">🛡</div>
+        <div><div class="cb-t">Liez votre NAG — Numéro d'Assuré Gabonais</div><div class="cb-s">Vérification automatique · 80–100% remboursés · Tous régimes</div></div>
+        <div class="cb-arr">›</div>
+      </div>
+
+      <div class="spec-scroll" id="spec-scroll">
+        <div class="sp on" onclick="filterSpec('',this)"><div class="sp-em">🏥</div><div class="sp-l">Tous</div></div>
+        <div class="sp" onclick="filterSpec('Médecin généraliste',this)"><div class="sp-em">🩺</div><div class="sp-l">Généraliste</div></div>
+        <div class="sp" onclick="filterSpec('Pédiatre',this)"><div class="sp-em">👶</div><div class="sp-l">Pédiatre</div></div>
+        <div class="sp" onclick="filterSpec('Gynécologue',this)"><div class="sp-em">🌸</div><div class="sp-l">Gynéco</div></div>
+        <div class="sp" onclick="filterSpec('Cardiologue',this)"><div class="sp-em">❤️</div><div class="sp-l">Cardio</div></div>
+        <div class="sp" onclick="filterSpec('Dermatologue',this)"><div class="sp-em">🔬</div><div class="sp-l">Dermato</div></div>
+        <div class="sp" onclick="filterSpec('Dentiste',this)"><div class="sp-em">🦷</div><div class="sp-l">Dentiste</div></div>
+      </div>
+
+      <div class="sec-row">
+        <div class="sec-t" id="doc-title">Médecins disponibles</div>
+        <span class="sec-more" id="doc-count"></span>
+      </div>
+      <div id="doc-list"></div>
+    </div>
+
+    <!-- CARTE -->
+    <div id="sc-carte" class="sc">
+      <div id="map"></div>
+    </div>
+
+    <!-- RDV -->
+    <div id="sc-rdv" class="sc">
+      <div class="rdv-wrap">
+        <div style="font-size:16px;font-weight:800;margin-bottom:12px">Mes rendez-vous</div>
+        <div class="rdv-tabs">
+          <button class="rdv-tab on" onclick="switchRdv('up',this)">À venir (2)</button>
+          <button class="rdv-tab" onclick="switchRdv('past',this)">Passés (1)</button>
+        </div>
+        <div id="rdv-up">
+          <div class="notice"><span>ℹ️</span><span>Présentez votre <strong>carte biométrique CNAMGS</strong> à l'accueil.</span></div>
+          <div class="rdv-card">
+            <div class="rdv-date"><div class="rdv-d">14</div><div class="rdv-m">Mai</div></div>
+            <div class="rdv-body">
+              <div style="display:flex;justify-content:space-between">
+                <div><div class="rdv-doc">Dr. Tatiana Augé</div><div class="rdv-sp">Pédiatre · Rue André Mintsa</div><div class="rdv-time">⏰ 09h30 · 30 min</div><div class="rdv-nag">NAG : 2 408 100 447 01</div></div>
+                <span class="pill p-g">Confirmé</span>
+              </div>
+              <div class="rdv-actions"><button class="r-btn danger" onclick="this.closest('.rdv-card').style.opacity='.4'">Annuler</button><button class="r-btn">Détails</button></div>
+            </div>
+          </div>
+          <div class="rdv-card">
+            <div class="rdv-date"><div class="rdv-d">21</div><div class="rdv-m">Mai</div></div>
+            <div class="rdv-body">
+              <div style="display:flex;justify-content:space-between">
+                <div><div class="rdv-doc">Dr. Gabriel Mendome</div><div class="rdv-sp">Gynécologue · Clinique El-Rapha</div><div class="rdv-time">⏰ 14h00 · 45 min</div><div class="rdv-nag">NAG : 2 408 100 447 01 · 80%</div></div>
+                <span class="pill p-g">Confirmé</span>
+              </div>
+              <div class="rdv-actions"><button class="r-btn danger" onclick="this.closest('.rdv-card').style.opacity='.4'">Annuler</button><button class="r-btn">Détails</button></div>
+            </div>
+          </div>
+        </div>
+        <div id="rdv-past" style="display:none">
+          <div class="rdv-card" style="opacity:.65">
+            <div class="rdv-date" style="background:var(--ink3)"><div class="rdv-d">02</div><div class="rdv-m">Avr</div></div>
+            <div class="rdv-body"><div class="rdv-doc">Dr. François Libadi</div><div class="rdv-sp">Dermatologue · Batterie IV</div><div class="rdv-time">09h00 · Terminé</div><div class="rdv-nag">Remboursé 80% · 12 000 F</div><span class="pill p-g" style="margin-top:6px;display:inline-block">Effectué</span><div class="rdv-actions"><button class="r-btn">Renouveler</button></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉPENSES -->
+    <div id="sc-depenses" class="sc">
+      <div class="dep-hero">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:9px">Mes dépenses santé</div>
+        <div class="dep-cards">
+          <div class="dep-c"><div class="dep-cl">Part patient</div><div class="dep-cn">157 500 F</div><div class="dep-cs">Ce que vous avez payé</div></div>
+          <div class="dep-c green"><div class="dep-cl">Pris en charge CNAMGS</div><div class="dep-cn green">318 000 F</div><div class="dep-cs">Remboursé par l'État</div></div>
+          <div class="dep-c gold"><div class="dep-cl">Total soins bruts</div><div class="dep-cn gold">475 500 F</div><div class="dep-cs">Vous + CNAMGS</div></div>
+          <div class="dep-c"><div class="dep-cl">Actes remboursés</div><div class="dep-cn">8 / 9</div><div class="dep-cs">Ce trimestre</div></div>
+        </div>
+        <div class="period-row">
+          <button class="per-btn" onclick="selPer(this)">1 mois</button>
+          <button class="per-btn on" onclick="selPer(this)">3 mois</button>
+          <button class="per-btn" onclick="selPer(this)">6 mois</button>
+          <button class="per-btn" onclick="selPer(this)">12 mois</button>
+        </div>
+      </div>
+      <div class="rep-block">
+        <div style="font-size:12px;font-weight:700;margin-bottom:6px">Répartition des dépenses</div>
+        <div class="rep-bar-wrap"><div class="rep-bar-pat" style="width:33%"></div><div class="rep-bar-cnam"></div></div>
+        <div class="rep-leg">
+          <div class="rep-l"><div class="rep-dot" style="background:var(--ora)"></div><span style="color:var(--ora);font-weight:700">33%</span>&nbsp;<span style="font-size:10px;color:var(--ink3)">Patient (157 500 F)</span></div>
+          <div class="rep-l"><div class="rep-dot" style="background:var(--g)"></div><span style="color:var(--g);font-weight:700">67%</span>&nbsp;<span style="font-size:10px;color:var(--ink3)">CNAMGS (318 000 F)</span></div>
+        </div>
+      </div>
+      <div class="dep-month-lbl"><span>Mai 2026</span><span style="font-size:10px;font-weight:600;color:var(--ink3)">Vous : 57 500 F</span></div>
+      <div id="dep-list"></div>
+    </div>
+
+    <!-- e-CNAMGS -->
+    <div id="sc-cnamgs" class="sc">
+      <div class="cnamgs-wrap">
+        <div class="cnam-hero">
+          <h3>Espace e-CNAMGS</h3>
+          <p>Caisse Nationale d'Assurance Maladie et de Garantie Sociale · 1,6 million d'assurés</p>
+          <!-- ⭐ BOUTON e-CNAMGS FONCTIONNEL -->
+          <a class="ecnam-link" href="https://ecnamgs.cnamgs.ga" target="_blank" rel="noopener noreferrer" onclick="toast('Ouverture du portail officiel e-CNAMGS...')">
+            <div class="ecl-dot"></div>
+            <div class="ecl-text">
+              <div class="ecl-title">Portail officiel e-CNAMGS</div>
+              <div class="ecl-url">ecnamgs.cnamgs.ga</div>
+            </div>
+            <div class="ecl-arrow">↗</div>
+          </a>
+          <div class="ecnam-note">
+            ℹ️ Ce lien ouvre le site officiel de la CNAMGS dans votre navigateur. Connectez-vous avec votre NAG + date de naissance pour gérer votre compte.
+          </div>
+        </div>
+
+        <div class="nag-card">
+          <div class="nag-l">Numéro d'Assuré Gabonais (NAG)</div>
+          <div class="nag-n">2 408 100 447 01</div>
+          <div class="nag-grid">
+            <div class="nag-f"><div class="nag-fl">Titulaire</div><div class="nag-fv">Koumba Mboula</div></div>
+            <div class="nag-f"><div class="nag-fl">Régime</div><div class="nag-fv">Salarié privé</div></div>
+            <div class="nag-f"><div class="nag-fl">Validité</div><div class="nag-fv">31/12/2026</div></div>
+            <div class="nag-f"><div class="nag-fl">Carte biométrique</div><div class="nag-fv">Délivrée</div></div>
+          </div>
+          <div class="nag-status"><div class="nag-sdot"></div>Droits ouverts · Actif 2026</div>
+        </div>
+
+        <div class="regime-tabs">
+          <button class="rt on" onclick="selRT(this)">Salarié privé</button>
+          <button class="rt" onclick="selRT(this)">Agent public</button>
+          <button class="rt" onclick="selRT(this)">GEF</button>
+        </div>
+
+        <div class="remb-grid">
+          <div class="remb-c"><div class="remb-n" style="color:var(--g)">80%</div><div class="remb-l">Maladie ordinaire</div></div>
+          <div class="remb-c"><div class="remb-n" style="color:var(--bl)">90%</div><div class="remb-l">Longue durée</div></div>
+          <div class="remb-c"><div class="remb-n" style="color:var(--goldd)">100%</div><div class="remb-l">Accouchement</div></div>
+        </div>
+
+        <div class="info-block">
+          <div class="info-sec-t">Historique remboursements</div>
+          <div class="info-row"><span class="ir-l">CHU Angondjé — Hospitalisation</span><span class="ir-v" style="color:var(--g)">232 400 F</span></div>
+          <div class="info-row"><span class="ir-l">Clinique El-Rapha — Gynéco</span><span class="ir-v" style="color:var(--g)">20 000 F</span></div>
+          <div class="info-row"><span class="ir-l">Labo CHU Angondjé — Bilan</span><span class="ir-v" style="color:var(--g)">28 000 F</span></div>
+          <div class="info-row"><span class="ir-l">Maternité El-Rapha (suivi)</span><span class="ir-v" style="color:var(--g)">20 000 F</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL -->
+    <div id="sc-profil" class="sc">
+      <div class="prof-hero">
+        <div class="prof-av">KM</div>
+        <div class="prof-name">Koumba Mboula</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.65)">Libreville · née le 14/03/1989</div>
+        <div class="prof-nag">NAG : 2 408 100 447 01 ✓</div><br>
+        <div class="prof-regime">Salarié secteur privé</div>
+      </div>
+      <div class="prof-block">
+        <div class="prof-block-t">Informations personnelles</div>
+        <div class="prof-row"><span class="pr-l">Prénom & Nom</span><span class="pr-v">Koumba Mboula</span></div>
+        <div class="prof-row"><span class="pr-l">Téléphone</span><span class="pr-v">+241 77 12 34 56</span></div>
+        <div class="prof-row"><span class="pr-l">Ville</span><span class="pr-v">Libreville</span></div>
+        <div class="prof-row"><span class="pr-l">Groupe sanguin</span><span class="pr-v">A+</span></div>
+        <div class="prof-row"><span class="pr-l">Allergies</span><span class="pr-v">Pénicilline</span></div>
+        <button class="btn-save" onclick="toast('✅ Profil enregistré')">Enregistrer les modifications</button>
+      </div>
+      <div class="prof-block">
+        <div class="prof-block-t">Paramètres</div>
+        <div class="prof-row"><span class="pr-l">Notifications SMS</span><span class="pr-v" style="color:var(--g)">Actives</span></div>
+        <div class="prof-row"><span class="pr-l">Langue</span><span class="pr-v">Français</span></div>
+        <div class="prof-row" style="cursor:pointer" onclick="toast('Déconnexion...')"><span class="pr-l" style="color:var(--red)">Se déconnecter</span><span style="color:var(--ink4)">›</span></div>
+      </div>
+      <div style="text-align:center;padding:16px;font-size:11px;color:var(--ink4)">
+        <a href="santeplus_site.html" style="color:var(--g);font-weight:600;text-decoration:none">← Retour au site SantéPlus</a>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav">
+    <button class="bn on" id="bn0" onclick="showSc('home');setBN(0)"><div class="bn-ic">🏠</div>Accueil</button>
+    <button class="bn" id="bn1" onclick="showSc('carte');setBN(1);initMap()"><div class="bn-ic">🗺</div>Carte</button>
+    <button class="bn" id="bn2" onclick="showSc('cnamgs');setBN(2)"><div class="bn-ic">🛡</div>CNAMGS</button>
+    <button class="bn bn-badge" id="bn3" onclick="showSc('rdv');setBN(3)"><div class="bn-ic">📅</div>Mes RDV</button>
+    <button class="bn" id="bn4" onclick="showSc('depenses');setBN(4)"><div class="bn-ic">💳</div>Dépenses</button>
+  </nav>
+
+  <!-- BOOKING OVERLAY -->
+  <div id="overlay" class="overlay" style="display:none">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div id="book-form">
+        <div class="sheet-t" id="b-name">Prendre rendez-vous</div>
+        <div class="sheet-s" id="b-spec">Sélectionnez une date et un créneau</div>
+        <div style="margin-bottom:10px">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:7px">Choisir une date</div>
+          <div class="day-strip" id="day-strip"></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;font-weight:700;color:var(--ink3);margin-bottom:7px">Créneaux disponibles</div>
+          <div class="slots-pick" id="slots-pick"></div>
+        </div>
+        <div class="fg">
+          <label>Régime CNAMGS</label>
+          <select id="b-regime"><option>Salarié secteur privé</option><option>Agent de la fonction publique</option><option>GEF — Gabonais Économiquement Faible</option></select>
+        </div>
+        <div class="fg">
+          <label>Numéro NAG</label>
+          <div style="position:relative">
+            <input value="2 408 100 447 01" style="padding-right:80px;font-family:'IBM Plex Mono',monospace">
+            <span style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--g)">✓ Vérifié</span>
+          </div>
+        </div>
+        <div class="fg">
+          <label>Téléphone (SMS de confirmation)</label>
+          <input value="+241 77 12 34 56" type="tel">
+        </div>
+        <div class="nag-banner">🛡 NAG vérifié · Droits ouverts · Remboursement :<span class="taux">80%</span></div>
+        <button class="btn-confirm" onclick="confirmBook()">Confirmer le rendez-vous</button>
+        <button class="btn-cancel-book" onclick="closeOverlay()">Annuler</button>
+      </div>
+      <div id="book-success" style="display:none">
+        <div class="success-wrap">
+          <div class="succ-icon">✅</div>
+          <div class="succ-t">Rendez-vous confirmé !</div>
+          <div class="succ-s" id="succ-det"></div>
+          <div class="sms-note sms-ok">📱 SMS de confirmation envoyé au +241 77 12 34 56</div>
+          <div class="sms-note sms-bl">🛡 Vérification NAG transmise à la CNAMGS</div>
+          <button class="btn-done" onclick="closeOverlay();showSc('rdv');setBN(3)">Voir mes rendez-vous</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast-el"></div>
+
+</div><!-- /phone-frame -->
+
+<script>
+let curDoc=null, curSlot=null, mapDone=false;
+
+const DOCS=[
+  {id:1,p:'Tatiana',n:'Augé',init:'TA',spec:'Pédiatre',lieu:'Cabinet Rue André Mintsa',q:'Centre-ville',v:'Libreville',note:4.9,avis:78,nag:true,delai:'Demain',col:'#1D4ED8',bg:'#DBEAFE',brd:'#93C5FD',slots:['08h30','09h15','10h00','14h30']},
+  {id:2,p:'Gabriel',n:'Mendome',init:'GM',spec:'Gynécologue',lieu:'Clinique El-Rapha',q:'Owendo',v:'Libreville',note:4.8,avis:104,nag:true,delai:'Sous 3 jours',col:'#7C3AED',bg:'#EDE9FE',brd:'#C4B5FD',slots:['09h00','11h00','14h00','16h00']},
+  {id:3,p:'François',n:'Libadi',init:'FL',spec:'Dermatologue',lieu:'Cabinet Batterie IV',q:'Batterie IV',v:'Libreville',note:4.7,avis:62,nag:true,delai:'Cette semaine',col:'#065F46',bg:'#D1FAE5',brd:'#6EE7B7',slots:['08h00','09h30','11h00','15h00']},
+  {id:4,p:'Raouf',n:'Abdou',init:'RA',spec:'Pédiatre',lieu:'Cabinet Médical Batterie IV',q:'Batterie IV',v:'Libreville',note:4.6,avis:55,nag:true,delai:'Sous 4 jours',col:'#92400E',bg:'#FEF3C7',brd:'#FDE68A',slots:['08h30','10h30','14h00']},
+  {id:5,p:'Dominique',n:'Tible',init:'DT',spec:'Médecin généraliste',lieu:'Cabinet Hauts de Gué-Gué',q:'Hauts de Gué-Gué',v:'Libreville',note:4.5,avis:88,nag:false,delai:"Aujourd'hui",col:'#1E40AF',bg:'#EFF6FF',brd:'#BFDBFE',slots:['08h00','08h30','09h00','10h00','14h00','15h00']},
+  {id:6,p:'',n:'Andjanga Onewin',init:'AO',spec:'Médecin généraliste',lieu:'Cabinet Centre-ville',q:'Centre-ville',v:'Libreville',note:4.4,avis:41,nag:true,delai:'Demain',col:'#065F46',bg:'#D1FAE5',brd:'#6EE7B7',slots:['09h00','10h00','15h00']},
+  {id:7,p:'',n:'Nziengui Ernest',init:'NZ',spec:'Médecin généraliste',lieu:'Cabinet Owendo-Acae',q:'Owendo',v:'Libreville',note:4.3,avis:29,nag:false,delai:'Cette semaine',col:'#374151',bg:'#F9FAFB',brd:'#D1D5DB',slots:['08h00','09h30','14h00']},
+  {id:8,p:'',n:'Edzang',init:'ED',spec:'Médecin généraliste',lieu:'Cabinet Dr Edzang, Ex-Sobraga',q:'Ex-Sobraga',v:'Libreville',note:4.5,avis:47,nag:true,delai:'Cette semaine',col:'#374151',bg:'#F9FAFB',brd:'#D1D5DB',slots:['08h30','10h00','11h30','15h00']},
+];
+
+const DEPENSES=[
+  {id:1,icon:'🩺',bg:'#DBEAFE',nom:'Dr. Tatiana Augé — Consultation pédiatrie',meta:'08/05/2026 · Cabinet Rue André Mintsa',brut:15000,cnam:12000,pat:3000,ref:'CNAMGS-REM-2026-0847'},
+  {id:2,icon:'💊',bg:'#D1FAE5',nom:'Pharmacie de la Mer — Antibiotiques',meta:'09/05/2026 · Centre-ville',brut:22500,cnam:18000,pat:4500,ref:'CNAMGS-REM-2026-0851'},
+  {id:3,icon:'🌸',bg:'#EDE9FE',nom:'Dr. Gabriel Mendome — Gynécologie',meta:'21/04/2026 · Clinique El-Rapha',brut:25000,cnam:20000,pat:5000,ref:'CNAMGS-REM-2026-0712'},
+  {id:4,icon:'🔬',bg:'#FEF3C7',nom:'Laboratoire CHU Angondjé — Bilan sanguin',meta:'22/04/2026 · CHU Angondjé',brut:35000,cnam:28000,pat:7000,ref:'CNAMGS-REM-2026-0718'},
+  {id:5,icon:'🏥',bg:'#FEE2E2',nom:'CHU Angondjé — Hospitalisation (3 jours)',meta:'05/03/2026 · Appendicite',brut:290500,cnam:232400,pat:58100,ref:'CNAMGS-REM-2026-0521'},
+];
+
+// ── NAV ──
+function showSc(s){
+  document.querySelectorAll('.sc').forEach(x=>x.classList.remove('on'));
+  document.getElementById('sc-'+s).classList.add('on');
+  document.querySelector('.content').scrollTop=0;
+}
+function setBN(i){document.querySelectorAll('.bn').forEach((b,j)=>b.classList.toggle('on',j===i));}
+
+// ── DOCS ──
+function renderDocs(list){
+  const el=document.getElementById('doc-list');
+  document.getElementById('doc-count').textContent=list.length+' médecin'+(list.length!==1?'s':'');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:20px;color:var(--ink4);font-size:12px">Aucun résultat.</div>';return;}
+  el.innerHTML=list.map(d=>`
+    <div class="doc-card" onclick="openBook(${d.id})">
+      <div class="doc-av" style="background:${d.bg};color:${d.col};border-color:${d.brd}">${d.init}</div>
+      <div class="doc-body">
+        <div class="doc-name">Dr. ${d.p} ${d.n}</div>
+        <div class="doc-spec" style="color:${d.col}">${d.spec}</div>
+        <div class="doc-lieu">📍 ${d.lieu} · ${d.q}</div>
+        <div class="doc-meta">
+          <span style="font-size:10px;color:var(--ink3)"><span class="star">★</span>${d.note} (${d.avis})</span>
+          <span style="font-size:10px;color:var(--ink3)">🕐 ${d.delai}</span>
+          ${d.nag?'<span class="pill p-b">🛡 CNAMGS</span>':''}
+        </div>
+        <div class="doc-slots">${d.slots.slice(0,4).map(s=>`<div class="dslot" onclick="event.stopPropagation();openBook(${d.id},'${s}')">${s}</div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function liveSearch(){
+  const q=(document.getElementById('sq').value||'').toLowerCase();
+  const v=document.getElementById('sv').value;
+  let r=DOCS.filter(d=>(!q||(d.n.toLowerCase().includes(q)||d.p.toLowerCase().includes(q)||d.spec.toLowerCase().includes(q)))&&(!v||d.v===v));
+  document.getElementById('doc-title').textContent=q||v?'Résultats':'Médecins disponibles';
+  renderDocs(r);
+}
+
+function filterSpec(s,el){
+  document.querySelectorAll('.sp').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  renderDocs(s?DOCS.filter(d=>d.spec===s):DOCS);
+  document.getElementById('doc-title').textContent=s||'Médecins disponibles';
+}
+
+// ── DÉPENSES ──
+function renderDeps(){
+  document.getElementById('dep-list').innerHTML=DEPENSES.map(d=>`
+    <div class="dep-item" id="di-${d.id}" onclick="this.classList.toggle('open')">
+      <div class="dep-hdr">
+        <div class="dep-ic" style="background:${d.bg}">${d.icon}</div>
+        <div class="dep-main"><div class="dep-name">${d.nom}</div><div class="dep-meta">${d.meta}</div></div>
+        <div class="dep-right"><div class="dep-total">${d.pat.toLocaleString('fr-FR')} F</div><span class="pill p-g" style="margin-top:3px;display:inline-block">✓ Remboursé</span></div>
+        <div class="dep-arrow">▾</div>
+      </div>
+      <div class="dep-detail">
+        <div class="bb">
+          <div class="bb-row bb-total"><span>💊 Total acte</span><span style="font-weight:800">${d.brut.toLocaleString('fr-FR')} F</span></div>
+          <div class="bb-row bb-cnam"><span>🛡 CNAMGS (80%)</span><span style="font-weight:800">${d.cnam.toLocaleString('fr-FR')} F</span></div>
+          <div class="bb-row bb-pat"><span>👤 Votre part</span><span style="font-weight:800">${d.pat.toLocaleString('fr-FR')} F</span></div>
+        </div>
+        <div style="font-size:10px;color:var(--ink4);font-family:'IBM Plex Mono',monospace">${d.ref}</div>
+      </div>
+    </div>`).join('');
+}
+
+function selPer(el){document.querySelectorAll('.per-btn').forEach(b=>b.classList.remove('on'));el.classList.add('on');}
+function switchRdv(t,el){document.querySelectorAll('.rdv-tab').forEach(x=>x.classList.remove('on'));el.classList.add('on');document.getElementById('rdv-up').style.display=t==='up'?'block':'none';document.getElementById('rdv-past').style.display=t==='past'?'block':'none';}
+function selRT(el){document.querySelectorAll('.rt').forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+
+// ── CARTE ──
+function initMap(){
+  if(mapDone) return; mapDone=true;
+  const m=L.map('map',{zoomControl:false,attributionControl:false}).setView([-0.39,9.45],12);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(m);
+  L.control.zoom({position:'topright'}).addTo(m);
+  L.control.attribution({position:'bottomleft',prefix:'© OpenStreetMap'}).addTo(m);
+  const pts=[
+    {lat:-0.3901,lng:9.4544,ic:'🏥',col:'#00563C',n:'CHU de Libreville',gold:true},
+    {lat:-0.3200,lng:9.4100,ic:'🏥',col:'#00563C',n:'CHU Angondjé',gold:true},
+    {lat:-0.4300,lng:9.4950,ic:'🏥',col:'#00563C',n:'CHU Owendo',gold:true},
+    {lat:-0.4180,lng:9.4800,ic:'🏨',col:'#1849D6',n:'Clinique El-Rapha',gold:true},
+    {lat:-0.3850,lng:9.4600,ic:'👶',col:'#C2410C',n:'Dr. Tatiana Augé — Pédiatre',gold:true},
+    {lat:-0.4220,lng:9.4850,ic:'🌸',col:'#BE185D',n:'Dr. Gabriel Mendome — Gynécologue',gold:true},
+    {lat:-0.3780,lng:9.4520,ic:'🔬',col:'#7C3AED',n:'Dr. François Libadi — Dermatologue',gold:true},
+    {lat:-0.3920,lng:9.4650,ic:'🩺',col:'#C2410C',n:'Dr. Dominique Tible — Généraliste',gold:false},
+    {lat:-0.3960,lng:9.4380,ic:'🩺',col:'#374151',n:'Dr. Andjanga Onewin — Généraliste',gold:true},
+    {lat:-0.3980,lng:9.4420,ic:'🏨',col:'#1849D6',n:'Polyclinique El-Rachid',gold:false},
+    {lat:-0.3700,lng:9.4350,ic:'🏨',col:'#1849D6',n:'Polyclinique Dr. Chambrier',gold:false},
+    {lat:-0.3860,lng:9.4570,ic:'💊',col:'#7C3AED',n:'Pharmacie de la Mer',gold:true},
+  ];
+  pts.forEach(p=>{
+    const brd=p.gold?`3px solid #FCD116`:`2.5px solid rgba(255,255,255,.9)`;
+    const mk=L.marker([p.lat,p.lng],{icon:L.divIcon({
+      className:'',
+      html:`<div style="width:36px;height:36px;background:${p.col};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:${brd};box-shadow:0 2px 8px rgba(0,0,0,.28);cursor:pointer" title="${p.n}">${p.ic}</div>`,
+      iconSize:[36,36],iconAnchor:[18,18]
+    })}).addTo(m);
+    mk.bindPopup(`<b style="font-size:12px">${p.n}</b>${p.gold?'<br><span style="font-size:10px;color:#003F7F">🛡 Conventionné CNAMGS</span>':''}`);
+  });
+}
+
+// ── BOOKING ──
+function openBook(id,preSlot){
+  curDoc=DOCS.find(d=>d.id===id); if(!curDoc)return;
+  document.getElementById('b-name').textContent='Dr. '+curDoc.p+' '+curDoc.n;
+  document.getElementById('b-spec').textContent=curDoc.spec+' · '+curDoc.lieu;
+  const days=[['12','Lun'],['13','Mar'],['14','Mer'],['15','Jeu'],['16','Ven'],['19','Lun'],['20','Mar']];
+  document.getElementById('day-strip').innerHTML=days.map((d,i)=>`<div class="day-c ${i===0?'on':''}" onclick="selDay(this,'${d[0]} ${d[1]}')"><div class="dc-n">${d[0]}</div><div class="dc-nm">${d[1]}</div></div>`).join('');
+  document.getElementById('slots-pick').innerHTML=curDoc.slots.map((s,i)=>`<div class="slot-o ${(!preSlot&&i===0)||s===preSlot?'on':''}" onclick="selSlot(this,'${s}')">${s}</div>`).join('');
+  curSlot=preSlot||curDoc.slots[0];
+  document.getElementById('book-form').style.display='block';
+  document.getElementById('book-success').style.display='none';
+  document.getElementById('overlay').style.display='flex';
+}
+function selDay(el,d){document.querySelectorAll('.day-c').forEach(x=>x.classList.remove('on'));el.classList.add('on');}
+function selSlot(el,s){document.querySelectorAll('.slot-o').forEach(x=>x.classList.remove('on'));el.classList.add('on');curSlot=s;}
+function closeOverlay(){document.getElementById('overlay').style.display='none';}
+function confirmBook(){
+  document.getElementById('succ-det').textContent=`Dr. ${curDoc.p} ${curDoc.n} · ${curDoc.spec}\n${curDoc.lieu} · ${curSlot}`;
+  document.getElementById('book-form').style.display='none';
+  document.getElementById('book-success').style.display='block';
+}
+
+// ── TOAST ──
+function toast(msg){
+  const t=document.getElementById('toast-el');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──
+renderDocs(DOCS);
+renderDeps();
+</script>
+</body>
+</html>
