@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SantéPlus — Inscription médecin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00563C;--g2:#007A55;--g3:#D6EFE4;--g4:#EBF7F2;
+  --gold:#FCD116;--goldd:#A88A00;
+  --bl:#1849D6;--bll:#EBF0FF;
+  --red:#D93025;--redbg:#FFF0EF;
+  --ora:#C2410C;--orabg:#FFF4EC;
+  --ink:#0D1117;--ink2:#1F2937;--ink3:#4B5563;--ink4:#9CA3AF;
+  --bg:#F4F7F5;--card:#fff;--bdr:#E2E8E4;--bdr2:#EDF1EE;
+  --r8:8px;--r12:12px;--r16:16px;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+
+/* ── NAV ── */
+.nav{background:var(--g);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.logo-sq{background:var(--gold);color:var(--g);width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:14px}
+.logo-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:#fff}
+.logo-name em{color:var(--gold);font-style:normal}
+.nav-back{border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:var(--r8);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none}
+.nav-back:hover{background:rgba(255,255,255,.1)}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(148deg,#002E20,var(--g));padding:40px 24px 44px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'⚕';position:absolute;right:30px;bottom:-10px;font-size:130px;opacity:.06;pointer-events:none}
+.hero-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:5px 13px;font-size:10px;font-weight:700;color:rgba(255,255,255,.88);margin-bottom:14px;font-family:'Syne',sans-serif}
+.hero h1{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:#fff;line-height:1.15;margin-bottom:8px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.72);max-width:520px;margin:0 auto;line-height:1.65}
+
+/* ── STEPS ── */
+.steps-bar{background:var(--card);border-bottom:1px solid var(--bdr);padding:16px 24px}
+.steps{display:flex;align-items:center;justify-content:center;gap:0;max-width:600px;margin:0 auto}
+.step{display:flex;align-items:center;gap:8px;flex:1}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;transition:all .2s;font-family:'Syne',sans-serif}
+.step.done .step-num{background:var(--g);color:#fff}
+.step.active .step-num{background:var(--g);color:#fff;box-shadow:0 0 0 4px var(--g4)}
+.step.pending .step-num{background:var(--bdr);color:var(--ink4)}
+.step-label{font-size:11px;font-weight:600;font-family:'Syne',sans-serif}
+.step.active .step-label{color:var(--g)}
+.step.pending .step-label{color:var(--ink4)}
+.step-line{flex:1;height:2px;background:var(--bdr);margin:0 8px;max-width:60px}
+.step.done + .step-line{background:var(--g)}
+
+/* ── FORM CONTAINER ── */
+.form-container{max-width:720px;margin:28px auto;padding:0 24px 40px}
+
+/* ── SECTION ── */
+.form-section{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r16);padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.fs-title{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:4px;display:flex;align-items:center;gap:8px;font-family:'Syne',sans-serif}
+.fs-sub{font-size:12px;color:var(--ink4);margin-bottom:18px}
+.fs-divider{height:1px;background:var(--bdr2);margin:18px 0}
+
+/* ── FIELD ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-grid.full{grid-template-columns:1fr}
+.form-grid.thirds{grid-template-columns:1fr 1fr 1fr}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:700;color:var(--ink2)}
+.fg label span.req{color:var(--red);margin-left:2px}
+.fg input,.fg select,.fg textarea{border:1.5px solid var(--bdr);border-radius:var(--r8);padding:10px 12px;font-size:13px;color:var(--ink);background:var(--bg);font-family:'DM Sans',sans-serif;transition:all .15s;outline:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g);background:#fff;box-shadow:0 0 0 3px var(--g4)}
+.fg input.error,.fg select.error{border-color:var(--red);background:var(--redbg)}
+.fg-hint{font-size:10px;color:var(--ink4);margin-top:3px;line-height:1.5}
+.fg-success{font-size:10px;color:var(--g);margin-top:3px;display:none}
+.fg-success.show{display:block}
+
+/* ── ADRESSE GABON ── */
+.address-block{background:var(--g4);border:1px solid var(--g3);border-radius:var(--r12);padding:16px;margin-bottom:14px}
+.ab-title{font-size:12px;font-weight:700;color:var(--g);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ab-sub{font-size:11px;color:var(--ink3);margin-bottom:14px;line-height:1.5}
+.quartier-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px}
+.q-opt{border:1.5px solid var(--bdr);border-radius:var(--r8);padding:8px 10px;cursor:pointer;font-size:11px;font-weight:600;color:var(--ink2);background:var(--card);text-align:center;transition:all .15s;font-family:'Syne',sans-serif}
+.q-opt:hover{border-color:var(--g2);color:var(--g)}
+.q-opt.on{border-color:var(--g);background:var(--g);color:#fff}
+
+/* ── MAP GPS ── */
+.map-section{margin-top:16px}
+.map-toggle-btn{display:flex;align-items:center;gap:8px;background:transparent;border:1.5px dashed var(--g2);border-radius:var(--r8);padding:10px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--g);width:100%;font-family:'Syne',sans-serif;transition:all .15s;margin-bottom:10px}
+.map-toggle-btn:hover{background:var(--g4)}
+.map-toggle-btn.active{background:var(--g4);border-style:solid}
+#map-container{display:none;border-radius:var(--r12);overflow:hidden;border:1.5px solid var(--g3);box-shadow:var(--sh)}
+#gps-map{height:280px;width:100%}
+.map-instructions{background:rgba(0,86,60,.08);padding:10px 12px;font-size:11px;color:var(--g);display:flex;gap:7px;align-items:flex-start;line-height:1.5;border-top:1px solid var(--g3)}
+.gps-coords{background:var(--g);color:#fff;padding:8px 12px;font-family:'IBM Plex Mono',monospace;font-size:11px;display:none;align-items:center;gap:8px;border-top:1px solid var(--g3)}
+.gps-coords.show{display:flex}
+.coords-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80}
+.gps-clear{margin-left:auto;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:5px;padding:3px 8px;font-size:10px;cursor:pointer}
+
+/* ── DISPONIBILITÉS ── */
+.dispo-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:12px}
+.day-toggle{border:1.5px solid var(--bdr);border-radius:var(--r8);padding:8px 4px;cursor:pointer;font-size:11px;font-weight:600;color:var(--ink3);background:var(--card);text-align:center;transition:all .15s;font-family:'Syne',sans-serif}
+.day-toggle:hover{border-color:var(--g2);color:var(--g)}
+.day-toggle.on{border-color:var(--g);background:var(--g);color:#fff}
+.horaires-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--ink3)}
+.horaires-row input[type=time]{border:1.5px solid var(--bdr);border-radius:var(--r6);padding:6px 10px;font-size:12px;color:var(--ink);background:var(--bg);font-family:'DM Sans',sans-serif;width:110px}
+
+/* ── CNAMGS ── */
+.cnamgs-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cc-opt{border:1.5px solid var(--bdr);border-radius:var(--r12);padding:14px;cursor:pointer;transition:all .15s;text-align:center}
+.cc-opt:hover{border-color:var(--g2)}
+.cc-opt.on.yes{border-color:var(--g);background:var(--g4)}
+.cc-opt.on.no{border-color:var(--bdr);background:var(--bg)}
+.cc-ic{font-size:28px;margin-bottom:7px}
+.cc-t{font-size:12px;font-weight:700;color:var(--ink);margin-bottom:3px}
+.cc-s{font-size:11px;color:var(--ink4);line-height:1.4}
+
+/* ── PHOTO / DOCS ── */
+.upload-zone{border:2px dashed var(--bdr);border-radius:var(--r12);padding:22px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg)}
+.upload-zone:hover{border-color:var(--g2);background:var(--g4)}
+.upload-zone.has-file{border-color:var(--g);background:var(--g4)}
+.uz-ic{font-size:32px;margin-bottom:8px}
+.uz-t{font-size:12px;font-weight:700;color:var(--ink3);margin-bottom:2px}
+.uz-s{font-size:10px;color:var(--ink4)}
+.uz-filename{font-size:11px;color:var(--g);font-weight:600;margin-top:6px;display:none}
+.uz-filename.show{display:block}
+
+/* ── NOTICE ── */
+.notice{border-radius:var(--r8);padding:11px 14px;font-size:12px;display:flex;gap:8px;align-items:flex-start;line-height:1.55}
+.notice-info{background:var(--bll);color:var(--bl);border:1px solid #BFDBFE}
+.notice-warn{background:var(--orabg);color:var(--ora);border:1px solid #FED7AA}
+.notice-ok{background:var(--g4);color:var(--g);border:1px solid var(--g3)}
+
+/* ── PROGRESS ── */
+.progress-bar{height:4px;background:var(--bdr);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s}
+
+/* ── SUBMIT ── */
+.submit-section{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r16);padding:22px;margin-bottom:16px;box-shadow:var(--sh)}
+.btn-submit{width:100%;background:var(--g);color:#fff;border:none;border-radius:var(--r12);padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+.btn-submit:hover:not(:disabled){background:var(--g2);transform:translateY(-1px)}
+.btn-submit:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-save{width:100%;background:transparent;border:1.5px solid var(--bdr);color:var(--ink3);border-radius:var(--r12);padding:11px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;margin-top:8px;transition:all .15s}
+.btn-save:hover{background:var(--bg);border-color:var(--g2);color:var(--g)}
+
+/* ── SUCCESS SCREEN ── */
+.success-screen{display:none;text-align:center;padding:40px 20px;max-width:520px;margin:40px auto}
+.success-screen.show{display:block}
+.success-ic{font-size:64px;margin-bottom:16px}
+.success-t{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:var(--g);margin-bottom:10px}
+.success-s{font-size:14px;color:var(--ink3);line-height:1.7;margin-bottom:24px}
+.success-ref{background:var(--g4);border:1px solid var(--g3);border-radius:var(--r8);padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--g);font-weight:700;margin-bottom:20px;display:inline-block}
+.success-timeline{text-align:left;background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);padding:16px;margin-bottom:20px;box-shadow:var(--sh)}
+.tl-step{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr2)}
+.tl-step:last-child{border-bottom:none}
+.tl-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;font-family:'Syne',sans-serif}
+.tl-active{background:var(--g);color:#fff}
+.tl-pending{background:var(--bdr);color:var(--ink4)}
+.tl-body{flex:1}
+.tl-t{font-size:12px;font-weight:700;color:var(--ink)}
+.tl-s{font-size:10px;color:var(--ink4);margin-top:1px}
+.btn-home{background:var(--g);color:#fff;border:none;border-radius:var(--r12);padding:13px 28px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:7px}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;border-radius:var(--r10);padding:10px 16px;font-size:12px;font-weight:700;display:none;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.15);z-index:999}
+.toast.show{display:flex}
+.t-ok{background:var(--g);color:#fff}
+.t-err{background:var(--red);color:#fff}
+.t-info{background:var(--bl);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="santeplus_site.html" class="logo">
+    <div class="logo-sq">S+</div>
+    <div class="logo-name">Santé<em>Plus</em></div>
+  </a>
+  <a href="santeplus_site.html" class="nav-back">← Retour au site</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-chip">⚕ Réseau médical SantéPlus — Gabon</div>
+  <h1>Rejoignez le réseau<br><em>SantéPlus</em></h1>
+  <p class="hero-sub">Développez votre patientèle, gérez votre agenda en ligne et renforcez l'accès aux soins au Gabon. Inscription gratuite · Validation sous 48h.</p>
+</div>
+
+<!-- STEPS -->
+<div class="steps-bar">
+  <div class="steps">
+    <div class="step active" id="step-1">
+      <div class="step-num">1</div>
+      <div class="step-label">Identité</div>
+    </div>
+    <div class="step-line" id="line-1"></div>
+    <div class="step pending" id="step-2">
+      <div class="step-num">2</div>
+      <div class="step-label">Cabinet & Adresse</div>
+    </div>
+    <div class="step-line" id="line-2"></div>
+    <div class="step pending" id="step-3">
+      <div class="step-num">3</div>
+      <div class="step-label">Disponibilités</div>
+    </div>
+    <div class="step-line" id="line-3"></div>
+    <div class="step pending" id="step-4">
+      <div class="step-num">4</div>
+      <div class="step-label">Documents</div>
+    </div>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-container" id="form-main">
+
+  <div class="progress-bar"><div class="progress-fill" id="progress" style="width:25%"></div></div>
+
+  <!-- ═══ ÉTAPE 1 — IDENTITÉ ═══ -->
+  <div id="etape-1">
+    <div class="form-section">
+      <div class="fs-title">👤 Informations personnelles</div>
+      <div class="fs-sub">Vos informations telles qu'elles apparaîtront sur SantéPlus</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="prenom" placeholder="Ex: Marie-Claire">
+        </div>
+        <div class="fg">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="nom" placeholder="Ex: NDONG ESSONE">
+        </div>
+        <div class="fg">
+          <label>Titre</label>
+          <select id="titre">
+            <option value="Dr">Dr.</option>
+            <option value="Pr">Pr.</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Genre</label>
+          <select id="genre">
+            <option value="M">Homme</option>
+            <option value="F">Femme</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Téléphone <span class="req">*</span></label>
+          <input type="tel" id="telephone" placeholder="+241 07 XX XX XX XX">
+          <div class="fg-hint">Numéro gabonais · Ce sera le numéro de contact visible</div>
+        </div>
+        <div class="fg">
+          <label>Email professionnel</label>
+          <input type="email" id="email" placeholder="votre@email.com">
+        </div>
+      </div>
+
+      <div class="fs-divider"></div>
+      <div class="fs-title">🏥 Informations médicales</div>
+      <div class="fs-sub">Votre parcours et vos qualifications</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label>Spécialité principale <span class="req">*</span></label>
+          <select id="specialite">
+            <option value="">Choisir une spécialité...</option>
+            <option>Médecin généraliste</option>
+            <option>Pédiatre</option>
+            <option>Gynécologue</option>
+            <option>Cardiologue</option>
+            <option>Dermatologue</option>
+            <option>Ophtalmologue</option>
+            <option>Dentiste / Stomatologiste</option>
+            <option>Chirurgien général</option>
+            <option>Interniste</option>
+            <option>Neurologue</option>
+            <option>Psychiatre</option>
+            <option>Radiologue / Imagerie</option>
+            <option>Kinésithérapeute</option>
+            <option>Sage-femme</option>
+            <option>Infirmier(ère) spécialisé(e)</option>
+            <option>Autre spécialité</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>N° Ordre National des Médecins du Gabon <span class="req">*</span></label>
+          <input type="text" id="onmg" placeholder="ONMG-20XX-XXXXX" oninput="validateONMG(this)">
+          <div class="fg-hint">Format : ONMG-ANNÉE-NUMÉRO · Obligatoire pour validation</div>
+          <div class="fg-success" id="onmg-ok">✓ Format ONMG valide</div>
+        </div>
+        <div class="fg">
+          <label>Années d'expérience</label>
+          <select id="experience">
+            <option value="0-2">Moins de 2 ans</option>
+            <option value="2-5">2 à 5 ans</option>
+            <option value="5-10">5 à 10 ans</option>
+            <option value="10+">Plus de 10 ans</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Langue(s) de consultation</label>
+          <select id="langues">
+            <option value="fr">Français</option>
+            <option value="fr-en">Français + Anglais</option>
+            <option value="fr-local">Français + Langue locale</option>
+            <option value="multi">Multilangue</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Courte biographie (optionnel)</label>
+          <textarea id="bio" rows="3" placeholder="Présentez-vous brièvement : formation, spécialisation, approche avec les patients..."></textarea>
+          <div class="fg-hint">Visible par les patients sur votre profil SantéPlus</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="goStep(2)">Continuer — Cabinet & Adresse →</button>
+  </div>
+
+  <!-- ═══ ÉTAPE 2 — CABINET & ADRESSE ═══ -->
+  <div id="etape-2" style="display:none">
+    <div class="form-section">
+      <div class="fs-title">🏨 Votre cabinet / établissement</div>
+      <div class="fs-sub">Où exercez-vous ? Les patients trouveront votre cabinet grâce à ces informations.</div>
+      <div class="form-grid">
+        <div class="fg">
+          <label>Nom du cabinet / établissement <span class="req">*</span></label>
+          <input type="text" id="cabinet" placeholder="Ex: Cabinet Médical Batterie IV, Clinique El-Rapha...">
+        </div>
+        <div class="fg">
+          <label>Province <span class="req">*</span></label>
+          <select id="province" onchange="updateVilles()">
+            <option value="">Choisir une province...</option>
+            <option value="Estuaire">Estuaire</option>
+            <option value="Ogooué-Maritime">Ogooué-Maritime</option>
+            <option value="Haut-Ogooué">Haut-Ogooué</option>
+            <option value="Moyen-Ogooué">Moyen-Ogooué</option>
+            <option value="Woleu-Ntem">Woleu-Ntem</option>
+            <option value="Ngounié">Ngounié</option>
+            <option value="Nyanga">Nyanga</option>
+            <option value="Ogooué-Ivindo">Ogooué-Ivindo</option>
+            <option value="Ogooué-Lolo">Ogooué-Lolo</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Ville <span class="req">*</span></label>
+          <select id="ville">
+            <option value="">Choisir d'abord une province...</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Type d'exercice</label>
+          <select id="type-exercice">
+            <option value="cabinet-prive">Cabinet privé (seul)</option>
+            <option value="cabinet-groupe">Cabinet de groupe</option>
+            <option value="clinique">Clinique privée</option>
+            <option value="chu">CHU / Hôpital public</option>
+            <option value="chr">CHR / Hôpital régional</option>
+            <option value="dispensaire">Dispensaire / Centre de santé</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fs-divider"></div>
+
+      <!-- ADRESSE GABON -->
+      <div class="address-block">
+        <div class="ab-title">📍 Localisation de votre cabinet</div>
+        <div class="ab-sub">Au Gabon, on s'oriente avec des repères. Donnez-nous le quartier et un repère connu — c'est suffisant pour que les patients vous trouvent.</div>
+
+        <div class="fg" style="margin-bottom:12px">
+          <label>Quartier <span class="req">*</span></label>
+          <div class="quartier-grid" id="quartier-grid">
+            <!-- Rempli dynamiquement selon la ville -->
+          </div>
+          <input type="text" id="quartier-custom" placeholder="Autre quartier / préciser..." style="margin-top:8px">
+        </div>
+
+        <div class="fg" style="margin-bottom:12px">
+          <label>Repère de localisation <span class="req">*</span></label>
+          <input type="text" id="repere" placeholder="Ex: Face au carrefour Shell · À côté du marché · Immeuble Bicig 3e étage · Derrière l'école publique...">
+          <div class="fg-hint">Décrivez comme vous l'expliqueriez à quelqu'un qui ne connaît pas. Soyez précis.</div>
+        </div>
+
+        <!-- GPS OPTIONNEL -->
+        <div class="map-section">
+          <button class="map-toggle-btn" id="map-toggle" onclick="toggleMap()">
+            <span>🗺</span>
+            <span id="map-toggle-text">Optionnel : épingler précisément votre cabinet sur la carte</span>
+          </button>
+          <div id="map-container">
+            <div id="gps-map"></div>
+            <div class="gps-coords" id="gps-display">
+              <div class="coords-dot"></div>
+              <span id="coords-text">Position épinglée</span>
+              <button class="gps-clear" onclick="clearGPS()">✕ Supprimer</button>
+            </div>
+            <div class="map-instructions">
+              <span>👆</span>
+              <span><strong>Cliquez ou glissez le marqueur</strong> pour positionner exactement votre cabinet. Zoomez d'abord sur votre quartier.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CNAMGS -->
+      <div class="fs-divider"></div>
+      <div class="fs-title">🛡 Convention CNAMGS</div>
+      <div class="fs-sub">Êtes-vous conventionné avec la CNAMGS ? Cela détermine si vos patients peuvent être remboursés directement.</div>
+      <div class="cnamgs-choice">
+        <div class="cc-opt yes" id="cc-oui" onclick="setCNAMGS('oui')">
+          <div class="cc-ic">✅</div>
+          <div class="cc-t">Oui, je suis conventionné</div>
+          <div class="cc-s">Mes patients sont remboursés à 80–100% par la CNAMGS. Un badge apparaîtra sur mon profil.</div>
+        </div>
+        <div class="cc-opt" id="cc-non" onclick="setCNAMGS('non')">
+          <div class="cc-ic">❌</div>
+          <div class="cc-t">Non, pas encore conventionné</div>
+          <div class="cc-s">Je peux rejoindre le réseau maintenant et demander la convention CNAMGS plus tard.</div>
+        </div>
+      </div>
+
+      <div id="cnamgs-num-field" style="margin-top:12px;display:none">
+        <div class="fg">
+          <label>Numéro de convention CNAMGS</label>
+          <input type="text" id="cnamgs-num" placeholder="N° convention CNAMGS (si disponible)">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn-save" onclick="goStep(1)" style="flex:1;max-width:160px">← Retour</button>
+      <button class="btn-submit" onclick="goStep(3)" style="flex:1">Continuer — Disponibilités →</button>
+    </div>
+  </div>
+
+  <!-- ═══ ÉTAPE 3 — DISPONIBILITÉS ═══ -->
+  <div id="etape-3" style="display:none">
+    <div class="form-section">
+      <div class="fs-title">📅 Jours de consultation</div>
+      <div class="fs-sub">Sélectionnez les jours où vous recevez des patients. Vous pourrez modifier ces horaires à tout moment.</div>
+
+      <div class="dispo-grid">
+        <div class="day-toggle on" id="day-lun" onclick="toggleDay(this)">Lun</div>
+        <div class="day-toggle on" id="day-mar" onclick="toggleDay(this)">Mar</div>
+        <div class="day-toggle on" id="day-mer" onclick="toggleDay(this)">Mer</div>
+        <div class="day-toggle on" id="day-jeu" onclick="toggleDay(this)">Jeu</div>
+        <div class="day-toggle on" id="day-ven" onclick="toggleDay(this)">Ven</div>
+        <div class="day-toggle" id="day-sam" onclick="toggleDay(this)">Sam</div>
+        <div class="day-toggle" id="day-dim" onclick="toggleDay(this)">Dim</div>
+      </div>
+
+      <div class="fs-divider"></div>
+      <div class="fs-title" style="margin-bottom:12px">⏰ Horaires de consultation</div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="notice notice-info" style="margin-bottom:4px">ℹ️ Ces horaires sont indicatifs. Vous gérerez vos créneaux précis depuis votre espace médecin après validation.</div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:7px">Matin</div>
+          <div class="horaires-row">
+            <span>De</span>
+            <input type="time" id="matin-debut" value="08:00">
+            <span>à</span>
+            <input type="time" id="matin-fin" value="12:00">
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:7px">Après-midi</div>
+          <div class="horaires-row">
+            <span>De</span>
+            <input type="time" id="am-debut" value="14:00">
+            <span>à</span>
+            <input type="time" id="am-fin" value="18:00">
+          </div>
+        </div>
+      </div>
+
+      <div class="fs-divider"></div>
+      <div class="fs-title">⏱ Durée moyenne d'une consultation</div>
+      <div class="form-grid thirds" style="margin-top:12px">
+        <div class="fg">
+          <label>Durée (minutes)</label>
+          <select id="duree-consult">
+            <option value="15">15 minutes</option>
+            <option value="20">20 minutes</option>
+            <option value="30" selected>30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">1 heure</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Délai minimum avant RDV</label>
+          <select id="delai-rdv">
+            <option value="same">Même jour possible</option>
+            <option value="24h" selected>24h à l'avance</option>
+            <option value="48h">48h à l'avance</option>
+            <option value="1week">1 semaine à l'avance</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Consultations urgentes</label>
+          <select id="urgences">
+            <option value="oui">Oui, j'accepte</option>
+            <option value="non" selected>Sur RDV uniquement</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fs-divider"></div>
+      <div class="fg">
+        <label>Tarif d'une consultation (FCFA)</label>
+        <input type="number" id="tarif" placeholder="Ex: 15000" min="0" step="1000">
+        <div class="fg-hint">Information visible par les patients. Laissez vide si tarif selon acte ou sur devis.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button class="btn-save" onclick="goStep(2)" style="flex:1;max-width:160px">← Retour</button>
+      <button class="btn-submit" onclick="goStep(4)" style="flex:1">Continuer — Documents →</button>
+    </div>
+  </div>
+
+  <!-- ═══ ÉTAPE 4 — DOCUMENTS ═══ -->
+  <div id="etape-4" style="display:none">
+    <div class="form-section">
+      <div class="fs-title">📄 Documents requis pour validation</div>
+      <div class="fs-sub">Ces documents permettent à l'équipe SantéPlus et à l'ONMG de valider votre inscription. Formats acceptés : PDF, JPG, PNG.</div>
+
+      <div class="notice notice-warn" style="margin-bottom:18px">
+        ⚠️ La validation de votre profil ne sera effectuée qu'après vérification de votre N° ONMG. Ce processus prend 24 à 48h ouvrées.
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:8px">Photo de profil <span style="color:var(--red)">*</span></div>
+          <div class="upload-zone" id="uz-photo" onclick="document.getElementById('file-photo').click()">
+            <div class="uz-ic">📷</div>
+            <div class="uz-t">Cliquer pour ajouter votre photo</div>
+            <div class="uz-s">Photo professionnelle · JPG, PNG · Max 5 Mo</div>
+            <div class="uz-filename" id="fn-photo"></div>
+          </div>
+          <input type="file" id="file-photo" accept="image/*" style="display:none" onchange="handleFile('photo',this)">
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:8px">Carte ONMG / Diplôme <span style="color:var(--red)">*</span></div>
+          <div class="upload-zone" id="uz-onmg" onclick="document.getElementById('file-onmg').click()">
+            <div class="uz-ic">🏥</div>
+            <div class="uz-t">Carte de l'Ordre des Médecins</div>
+            <div class="uz-s">Carte ONMG ou diplôme · PDF, JPG · Max 10 Mo</div>
+            <div class="uz-filename" id="fn-onmg"></div>
+          </div>
+          <input type="file" id="file-onmg" accept=".pdf,image/*" style="display:none" onchange="handleFile('onmg',this)">
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:8px">Pièce d'identité <span style="color:var(--red)">*</span></div>
+          <div class="upload-zone" id="uz-cni" onclick="document.getElementById('file-cni').click()">
+            <div class="uz-ic">🪪</div>
+            <div class="uz-t">CNI, Passeport ou Carte de séjour</div>
+            <div class="uz-s">PDF ou image · Max 10 Mo</div>
+            <div class="uz-filename" id="fn-cni"></div>
+          </div>
+          <input type="file" id="file-cni" accept=".pdf,image/*" style="display:none" onchange="handleFile('cni',this)">
+        </div>
+
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:8px">Convention CNAMGS (si conventionné)</div>
+          <div class="upload-zone" id="uz-cnamgs" onclick="document.getElementById('file-cnamgs').click()">
+            <div class="uz-ic">🛡</div>
+            <div class="uz-t">Attestation de convention CNAMGS</div>
+            <div class="uz-s">PDF · Max 10 Mo · Optionnel</div>
+            <div class="uz-filename" id="fn-cnamgs"></div>
+          </div>
+          <input type="file" id="file-cnamgs" accept=".pdf" style="display:none" onchange="handleFile('cnamgs',this)">
+        </div>
+      </div>
+
+      <div class="fs-divider"></div>
+
+      <div class="notice notice-ok">
+        ✅ En soumettant ce formulaire, vous acceptez les conditions d'utilisation de SantéPlus et confirmez l'exactitude de vos informations. Vos données sont protégées et ne seront jamais partagées à des tiers sans votre accord.
+      </div>
+    </div>
+
+    <div class="submit-section">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;font-family:'Syne',sans-serif">Prêt à soumettre votre inscription ?</div>
+      <div style="font-size:12px;color:var(--ink4);margin-bottom:16px;line-height:1.5">Votre dossier sera examiné par l'équipe SantéPlus et l'ONMG dans les 24 à 48h ouvrées. Vous serez contacté par email et SMS.</div>
+      <button class="btn-submit" id="submit-btn" onclick="submitForm()">
+        <span>🚀</span>
+        <span>Soumettre mon inscription</span>
+      </button>
+      <button class="btn-save" onclick="goStep(3)">← Retour aux disponibilités</button>
+    </div>
+  </div>
+
+</div><!-- /form-container -->
+
+<!-- SUCCESS SCREEN -->
+<div class="form-container" id="success-screen" style="display:none">
+  <div class="success-screen show">
+    <div class="success-ic">🎉</div>
+    <div class="success-t">Inscription soumise !</div>
+    <div class="success-s">Votre dossier a bien été reçu par l'équipe SantéPlus. Vous serez contacté(e) sous 24 à 48h ouvrées.</div>
+    <div class="success-ref" id="success-ref">REF : SP-MED-2026-XXXX</div>
+    <div class="success-timeline">
+      <div style="font-size:12px;font-weight:700;margin-bottom:12px;font-family:'Syne',sans-serif">Prochaines étapes</div>
+      <div class="tl-step">
+        <div class="tl-num tl-active">✓</div>
+        <div class="tl-body"><div class="tl-t">Dossier soumis</div><div class="tl-s">Reçu par SantéPlus · Maintenant</div></div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-num tl-pending">2</div>
+        <div class="tl-body"><div class="tl-t">Vérification ONMG</div><div class="tl-s">Contrôle auprès de l'Ordre des Médecins du Gabon · 24–48h</div></div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-num tl-pending">3</div>
+        <div class="tl-body"><div class="tl-t">Validation par l'administrateur SantéPlus</div><div class="tl-s">Examen du dossier complet · Sous 48h</div></div>
+      </div>
+      <div class="tl-step">
+        <div class="tl-num tl-pending">4</div>
+        <div class="tl-body"><div class="tl-t">Activation de votre profil</div><div class="tl-s">SMS + Email de confirmation · Accès à votre espace médecin</div></div>
+      </div>
+    </div>
+    <a href="santeplus_site.html" class="btn-home">← Retour au site SantéPlus</a>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ── DATA ──
+const VILLES = {
+  'Estuaire': ['Libreville', 'Owendo', 'Ntoum', 'Kango', 'Cocobeach'],
+  'Ogooué-Maritime': ['Port-Gentil', 'Omboué', 'Gamba'],
+  'Haut-Ogooué': ['Franceville', 'Moanda', 'Makokou nord', 'Okondja'],
+  'Moyen-Ogooué': ['Lambaréné', 'Ndjolé'],
+  'Woleu-Ntem': ['Oyem', 'Bitam', 'Mitzic', 'Minvoul'],
+  'Ngounié': ['Mouila', 'Ndendé', 'Fougamou', 'Mbigou'],
+  'Nyanga': ['Tchibanga', 'Ndindi', 'Mayumba'],
+  'Ogooué-Ivindo': ['Makokou', 'Booué', 'Mékambo'],
+  'Ogooué-Lolo': ['Koulamoutou', 'Lastoursville'],
+};
+const QUARTIERS_LBV = ['Centre-ville','Batterie IV','Owendo','Angondjé','Akanda','Hauts de Gué-Gué','Nombakélé','Bikélé','Montagne Sainte','Glass','Louis','IAI','PK5 / PK8 / PK12','Nkembo','Awoungou','Autre'];
+const QUARTIERS_PG  = ['Centre-ville','Sogara','Mandji','Île Mandji','Autre'];
+const QUARTIERS_DEFAULT = ['Centre-ville','Quartier nord','Quartier sud','Périphérie','Autre'];
+
+let gpsLat = null, gpsLng = null;
+let mapObj = null, mapMarker = null;
+let mapVisible = false;
+let cnamgsChoice = 'oui';
+let uploadedFiles = {};
+let currentStep = 1;
+
+// ── NAVIGATION STEPS ──
+function goStep(n) {
+  // Validation de l'étape courante avant d'avancer
+  if (n > currentStep && !validateStep(currentStep)) return;
+
+  document.getElementById('etape-' + currentStep).style.display = 'none';
+  document.getElementById('etape-' + n).style.display = 'block';
+  currentStep = n;
+  updateStepsUI();
+  document.getElementById('form-main').scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+function updateStepsUI() {
+  const progress = [25, 50, 75, 100];
+  document.getElementById('progress').style.width = progress[currentStep - 1] + '%';
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step-' + i);
+    const line = document.getElementById('line-' + i);
+    el.className = 'step ' + (i < currentStep ? 'done' : i === currentStep ? 'active' : 'pending');
+    if (line) line.style.background = i < currentStep ? 'var(--g)' : 'var(--bdr)';
+  }
+}
+
+// ── VALIDATION ──
+function validateStep(step) {
+  if (step === 1) {
+    const required = [
+      {id:'prenom', label:'Prénom'},
+      {id:'nom', label:'Nom'},
+      {id:'telephone', label:'Téléphone'},
+      {id:'specialite', label:'Spécialité'},
+      {id:'onmg', label:'N° ONMG'},
+    ];
+    for (const f of required) {
+      const el = document.getElementById(f.id);
+      if (!el.value.trim()) {
+        el.classList.add('error');
+        el.focus();
+        toast('⚠ Champ obligatoire : ' + f.label, 'err');
+        setTimeout(() => el.classList.remove('error'), 2000);
+        return false;
+      }
+    }
+  }
+  if (step === 2) {
+    const required = [
+      {id:'cabinet', label:'Nom du cabinet'},
+      {id:'province', label:'Province'},
+      {id:'ville', label:'Ville'},
+      {id:'repere', label:'Repère de localisation'},
+    ];
+    for (const f of required) {
+      const el = document.getElementById(f.id);
+      if (!el.value.trim()) {
+        el.classList.add('error');
+        el.focus();
+        toast('⚠ Champ obligatoire : ' + f.label, 'err');
+        setTimeout(() => el.classList.remove('error'), 2000);
+        return false;
+      }
+    }
+    const q = document.querySelector('.q-opt.on');
+    const qCustom = document.getElementById('quartier-custom').value.trim();
+    if (!q && !qCustom) {
+      toast('⚠ Sélectionnez ou précisez votre quartier', 'err');
+      return false;
+    }
+  }
+  return true;
+}
+
+// ── VILLES & QUARTIERS ──
+function updateVilles() {
+  const province = document.getElementById('province').value;
+  const villeSelect = document.getElementById('ville');
+  villeSelect.innerHTML = '<option value="">Choisir une ville...</option>';
+  if (VILLES[province]) {
+    VILLES[province].forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      villeSelect.appendChild(opt);
+    });
+  }
+  updateQuartiers(province);
+}
+
+function updateQuartiers(province) {
+  const grid = document.getElementById('quartier-grid');
+  let quartiers = QUARTIERS_DEFAULT;
+  if (province === 'Estuaire') quartiers = QUARTIERS_LBV;
+  else if (province === 'Ogooué-Maritime') quartiers = QUARTIERS_PG;
+  grid.innerHTML = quartiers.map(q =>
+    `<div class="q-opt" onclick="selectQuartier(this)">${q}</div>`
+  ).join('');
+}
+
+function selectQuartier(el) {
+  document.querySelectorAll('.q-opt').forEach(q => q.classList.remove('on'));
+  el.classList.add('on');
+  if (el.textContent === 'Autre') {
+    document.getElementById('quartier-custom').focus();
+  }
+}
+
+// ── CARTE GPS ──
+function toggleMap() {
+  mapVisible = !mapVisible;
+  const container = document.getElementById('map-container');
+  const btn = document.getElementById('map-toggle');
+  const btnText = document.getElementById('map-toggle-text');
+  container.style.display = mapVisible ? 'block' : 'none';
+  btn.classList.toggle('active', mapVisible);
+  btnText.textContent = mapVisible
+    ? '🗺 Carte ouverte — cliquez pour positionner votre cabinet'
+    : 'Optionnel : épingler précisément votre cabinet sur la carte';
+  if (mapVisible && !mapObj) initGPSMap();
+}
+
+function initGPSMap() {
+  // Centre sur Libreville par défaut
+  const defaultLat = -0.39, defaultLng = 9.45, defaultZoom = 12;
+  const province = document.getElementById('province').value;
+  let center = [defaultLat, defaultLng], zoom = defaultZoom;
+  const centers = {
+    'Ogooué-Maritime': [-0.72, 8.78, 12],
+    'Haut-Ogooué': [-1.63, 13.58, 12],
+    'Moyen-Ogooué': [-0.69, 10.23, 12],
+    'Woleu-Ntem': [1.60, 11.58, 12],
+    'Ngounié': [-1.87, 11.05, 12],
+    'Nyanga': [-2.89, 11.01, 12],
+    'Ogooué-Ivindo': [0.00, 13.00, 10],
+    'Ogooué-Lolo': [-1.13, 12.30, 11],
+  };
+  if (centers[province]) {
+    center = [centers[province][0], centers[province][1]];
+    zoom = centers[province][2];
+  }
+
+  mapObj = L.map('gps-map', {zoomControl: true, attributionControl: false}).setView(center, zoom);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {maxZoom: 19}).addTo(mapObj);
+  L.control.attribution({position:'bottomleft', prefix:'© OpenStreetMap'}).addTo(mapObj);
+
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="width:36px;height:36px;background:var(--g, #00563C);border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);cursor:grab"></div>`,
+    iconSize: [36, 36], iconAnchor: [18, 36]
+  });
+
+  mapObj.on('click', function(e) { placeMarker(e.latlng.lat, e.latlng.lng); });
+
+  const info = L.control({position:'topright'});
+  info.onAdd = () => {
+    const d = L.DomUtil.create('div');
+    d.style.cssText = 'background:#fff;padding:7px 10px;border-radius:6px;font-size:11px;font-family:DM Sans,sans-serif;color:#374151;box-shadow:0 2px 8px rgba(0,0,0,.1);max-width:180px;line-height:1.4';
+    d.innerHTML = '👆 Cliquez pour marquer<br>votre position';
+    return d;
+  };
+  info.addTo(mapObj);
+}
+
+function placeMarker(lat, lng) {
+  if (mapMarker) mapObj.removeLayer(mapMarker);
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="width:40px;height:40px;background:#00563C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);cursor:pointer">🏥</div>`,
+    iconSize: [40, 40], iconAnchor: [20, 20]
+  });
+  mapMarker = L.marker([lat, lng], {icon, draggable: true}).addTo(mapObj);
+  mapMarker.on('dragend', e => {
+    const pos = e.target.getLatLng();
+    setGPS(pos.lat, pos.lng);
+  });
+  setGPS(lat, lng);
+}
+
+function setGPS(lat, lng) {
+  gpsLat = lat; gpsLng = lng;
+  document.getElementById('gps-display').classList.add('show');
+  document.getElementById('coords-text').textContent =
+    `📍 ${lat.toFixed(5)}, ${lng.toFixed(5)} — Position épinglée`;
+  toast('📍 Position enregistrée !', 'ok');
+}
+
+function clearGPS() {
+  if (mapMarker) { mapObj.removeLayer(mapMarker); mapMarker = null; }
+  gpsLat = null; gpsLng = null;
+  document.getElementById('gps-display').classList.remove('show');
+}
+
+// ── ONMG VALIDATION ──
+function validateONMG(input) {
+  const val = input.value.trim();
+  const ok = document.getElementById('onmg-ok');
+  const pattern = /^ONMG-\d{4}-\d{4,6}$/i;
+  if (pattern.test(val)) {
+    ok.classList.add('show');
+    input.classList.remove('error');
+  } else {
+    ok.classList.remove('show');
+  }
+}
+
+// ── CNAMGS ──
+function setCNAMGS(val) {
+  cnamgsChoice = val;
+  document.getElementById('cc-oui').classList.toggle('on', val === 'oui');
+  document.getElementById('cc-non').classList.toggle('on', val === 'non');
+  document.getElementById('cnamgs-num-field').style.display = val === 'oui' ? 'block' : 'none';
+}
+// Init CNAMGS par défaut
+setCNAMGS('oui');
+
+// ── DISPONIBILITÉS ──
+function toggleDay(el) { el.classList.toggle('on'); }
+
+// ── UPLOAD ──
+function handleFile(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  uploadedFiles[type] = file.name;
+  const uz = document.getElementById('uz-' + type);
+  const fn = document.getElementById('fn-' + type);
+  uz.classList.add('has-file');
+  fn.textContent = '✓ ' + file.name;
+  fn.classList.add('show');
+  toast('✓ ' + file.name + ' chargé', 'ok');
+}
+
+// ── SOUMISSION ──
+function submitForm() {
+  const btn = document.getElementById('submit-btn');
+
+  // Validation finale
+  if (!document.getElementById('file-photo').files.length) {
+    toast('⚠ Photo de profil obligatoire', 'err'); return;
+  }
+  if (!document.getElementById('file-onmg').files.length) {
+    toast('⚠ Document ONMG obligatoire', 'err'); return;
+  }
+  if (!document.getElementById('file-cni').files.length) {
+    toast('⚠ Pièce d\'identité obligatoire', 'err'); return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span style="animation:spin 1s linear infinite;display:inline-block">⏳</span> <span>Envoi en cours...</span>';
+
+  // Récupérer le quartier sélectionné
+  const qOpt = document.querySelector('.q-opt.on');
+  const quartier = (qOpt && qOpt.textContent !== 'Autre')
+    ? qOpt.textContent
+    : document.getElementById('quartier-custom').value.trim();
+
+  // Récupérer les jours sélectionnés
+  const jours = [];
+  ['lun','mar','mer','jeu','ven','sam','dim'].forEach(j => {
+    if (document.getElementById('day-' + j).classList.contains('on')) jours.push(j);
+  });
+
+  // Construire le dossier
+  const dossier = {
+    id: 'SP-MED-' + Date.now(),
+    statut: 'en_attente',
+    dateInscription: new Date().toISOString(),
+    // Étape 1
+    titre: document.getElementById('titre').value,
+    prenom: document.getElementById('prenom').value.trim(),
+    nom: document.getElementById('nom').value.trim(),
+    genre: document.getElementById('genre').value,
+    telephone: document.getElementById('telephone').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    specialite: document.getElementById('specialite').value,
+    onmg: document.getElementById('onmg').value.trim(),
+    experience: document.getElementById('experience').value,
+    langues: document.getElementById('langues').value,
+    bio: document.getElementById('bio').value.trim(),
+    // Étape 2
+    cabinet: document.getElementById('cabinet').value.trim(),
+    province: document.getElementById('province').value,
+    ville: document.getElementById('ville').value,
+    typeExercice: document.getElementById('type-exercice').value,
+    quartier: quartier,
+    repere: document.getElementById('repere').value.trim(),
+    gpsLat: gpsLat,
+    gpsLng: gpsLng,
+    cnamgs: cnamgsChoice,
+    cnamgsNum: document.getElementById('cnamgs-num').value.trim(),
+    // Étape 3
+    jours: jours,
+    matinDebut: document.getElementById('matin-debut').value,
+    matinFin: document.getElementById('matin-fin').value,
+    amDebut: document.getElementById('am-debut').value,
+    amFin: document.getElementById('am-fin').value,
+    dureeConsult: document.getElementById('duree-consult').value,
+    delaiRdv: document.getElementById('delai-rdv').value,
+    urgences: document.getElementById('urgences').value,
+    tarif: document.getElementById('tarif').value,
+    // Documents (noms seulement — en prod, les fichiers iraient sur un serveur)
+    docs: uploadedFiles,
+  };
+
+  // Sauvegarder dans localStorage (partagé avec l'admin)
+  setTimeout(() => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('sp_inscriptions_medecins') || '[]');
+      existing.unshift(dossier);
+      localStorage.setItem('sp_inscriptions_medecins', JSON.stringify(existing));
+    } catch(e) {
+      console.warn('localStorage indisponible:', e);
+    }
+
+    // Afficher écran de succès
+    document.getElementById('form-main').style.display = 'none';
+    document.getElementById('success-screen').style.display = 'block';
+    document.getElementById('success-ref').textContent = 'REF : ' + dossier.id;
+    window.scrollTo(0, 0);
+  }, 1500);
+}
+
+// ── TOAST ──
+function toast(msg, type = 'ok') {
+  const t = document.getElementById('toast-el');
+  t.className = 'toast t-' + type + ' show';
+  t.textContent = msg;
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── CSS SPIN ──
+const s = document.createElement('style');
+s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(s);
+
+// ── INIT ──
+// Pré-charger Libreville par défaut
+document.getElementById('province').value = 'Estuaire';
+updateVilles();
+setTimeout(() => {
+  document.getElementById('ville').value = 'Libreville';
+  updateQuartiers('Estuaire');
+}, 50);
+</script>
+</body>
+</html>
