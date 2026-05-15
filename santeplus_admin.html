@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SantéPlus — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00C87A;--g2:#00E88F;--glt:rgba(0,200,122,.12);--gltb:rgba(0,200,122,.25);
+  --gold:#FCD116;--goldd:#A88A00;
+  --bl:#1849D6;--bllt:rgba(24,73,214,.2);
+  --red:#EF4444;--redlt:rgba(239,68,68,.12);
+  --ora:#FB923C;--oralt:rgba(251,146,60,.12);
+  --ink:#0A0F0C;--ink2:#F0F2F0;--ink3:rgba(255,255,255,.55);--ink4:rgba(255,255,255,.28);
+  --bg:#0C1810;--card:#111E14;--card2:#162019;--bdr:rgba(255,255,255,.07);--bdr2:rgba(255,255,255,.04);
+  --r6:6px;--r8:8px;--r10:10px;--r12:12px;--r16:16px;
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink2);font-size:13px;line-height:1.55;height:100%;overflow:hidden}
+
+/* ── TOPBAR ── */
+.topbar{background:#070C09;border-bottom:1px solid var(--bdr);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:50}
+.tb-logo{display:flex;align-items:center;gap:9px}
+.tb-sq{background:var(--gold);color:#070C09;width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:14px}
+.tb-name{font-size:13px;font-weight:700;color:var(--ink2);font-family:'Syne',sans-serif}
+.tb-badge{background:rgba(252,209,22,.1);border:1px solid rgba(252,209,22,.2);border-radius:8px;padding:2px 9px;font-size:8px;font-weight:800;color:var(--gold);letter-spacing:.5px;margin-left:6px}
+.tb-sep{width:1px;height:20px;background:var(--bdr);margin:0 12px}
+.tb-url{font-size:10px;color:var(--ink4);font-family:'IBM Plex Mono',monospace}
+.tb-r{display:flex;align-items:center;gap:10px}
+.tb-user{font-size:10px;color:var(--ink4);font-family:'IBM Plex Mono',monospace}
+.tb-site-btn{border:1px solid var(--bdr);background:transparent;color:var(--ink3);border-radius:var(--r6);padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:all .15s}
+.tb-site-btn:hover{background:rgba(255,255,255,.05);color:var(--ink2)}
+.tb-status{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--g)}
+.status-dot{width:6px;height:6px;border-radius:50%;background:var(--g);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:calc(100vh - 52px);overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:196px;background:#070C09;border-right:1px solid var(--bdr);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:none}
+.sidebar::-webkit-scrollbar{display:none}
+.sb-sec-lbl{font-size:7px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.18);padding:12px 14px 3px;font-family:'Syne',sans-serif}
+.si{display:flex;align-items:center;gap:8px;padding:8px 14px;cursor:pointer;font-size:11px;font-weight:500;color:rgba(255,255,255,.42);border:none;background:transparent;width:100%;text-align:left;font-family:'Syne',sans-serif;transition:all .15s;border-left:2px solid transparent}
+.si:hover{background:rgba(255,255,255,.04);color:rgba(255,255,255,.8)}
+.si.on{background:var(--glt);color:var(--g);border-left-color:var(--g);font-weight:700}
+.si-ic{font-size:14px;width:16px;text-align:center;flex-shrink:0}
+.si-bd{margin-left:auto;background:var(--red);color:#fff;border-radius:6px;font-size:7px;font-weight:800;padding:1px 5px;flex-shrink:0}
+.si-bd.g{background:var(--g);color:#070C09}
+.sb-footer{margin-top:auto;padding:14px;border-top:1px solid var(--bdr)}
+.sb-ver{font-size:9px;color:rgba(255,255,255,.2);font-family:'IBM Plex Mono',monospace}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;padding:18px 22px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.06) transparent}
+
+/* ── TABS ── */
+.tab{display:none}.tab.on{display:block}
+
+/* ── KPI ROW ── */
+.kpi-row{display:grid;gap:10px;margin-bottom:14px}
+.kpi-row-4{grid-template-columns:repeat(4,1fr)}
+.kpi-row-3{grid-template-columns:repeat(3,1fr)}
+.kpi{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);padding:13px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r12) var(--r12) 0 0}
+.kpi.g::after{background:var(--g)}
+.kpi.b::after{background:var(--bl)}
+.kpi.o::after{background:var(--gold)}
+.kpi.r::after{background:var(--red)}
+.kpi-l{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:7px}
+.kpi-n{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;line-height:1;margin-bottom:4px}
+.kpi.g .kpi-n{color:var(--g)}
+.kpi.b .kpi-n{color:#60A5FA}
+.kpi.o .kpi-n{color:rgba(252,209,22,.85)}
+.kpi.r .kpi-n{color:var(--red)}
+.kpi-s{font-size:10px;color:rgba(255,255,255,.3)}
+.kpi-up{color:rgba(74,222,128,.8)}
+.kpi-dn{color:rgba(239,68,68,.8)}
+
+/* ── GRID ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g21{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-bottom:12px}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);overflow:hidden;margin-bottom:12px}
+.card-head{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.ch-t{font-size:12px;font-weight:700;color:var(--ink2);font-family:'Syne',sans-serif}
+.ch-s{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px}
+.card-body{padding:14px 16px}
+
+/* ── TABLES ── */
+.tbl-wrap{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);overflow:hidden;margin-bottom:12px}
+.tbl-head{padding:11px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr)}
+.tbl-t{font-size:12px;font-weight:700;color:var(--ink2);font-family:'Syne',sans-serif}
+.tbl-s{font-size:10px;color:rgba(255,255,255,.3);margin-top:1px}
+.tbl-actions{display:flex;gap:7px;align-items:center}
+.tbl-search{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--r6);padding:5px 10px;font-size:11px;color:var(--ink2);font-family:'DM Sans',sans-serif;width:148px}
+.tbl-search:focus{outline:none;border-color:rgba(0,200,122,.4)}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{text-align:left;padding:8px 14px;font-size:8px;font-weight:700;color:rgba(255,255,255,.22);background:rgba(0,0,0,.15);border-bottom:1px solid var(--bdr);text-transform:uppercase;letter-spacing:.8px}
+td{padding:10px 14px;border-bottom:1px solid var(--bdr2);color:rgba(255,255,255,.6)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-w{font-weight:600;color:var(--ink2)}
+.mono{font-family:'IBM Plex Mono',monospace;font-size:9px}
+
+/* ── PILLS ── */
+.pill{font-size:8px;font-weight:800;padding:2px 8px;border-radius:9px;display:inline-flex;align-items:center;gap:2px;white-space:nowrap}
+.p-g{background:var(--glt);color:var(--g)}
+.p-b{background:var(--bllt);color:#60A5FA}
+.p-o{background:var(--oralt);color:var(--ora)}
+.p-r{background:var(--redlt);color:var(--red)}
+.p-gld{background:rgba(252,209,22,.1);color:rgba(252,209,22,.85)}
+.p-dk{background:rgba(255,255,255,.07);color:rgba(255,255,255,.4)}
+
+/* ── ACTION BTNS ── */
+.act-btn{font-size:9px;padding:3px 8px;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.4);cursor:pointer;font-family:'Syne',sans-serif;margin-right:3px;transition:all .15s}
+.act-btn:hover{background:rgba(255,255,255,.06);color:var(--ink2)}
+.act-btn.val{border-color:rgba(0,200,122,.3);color:var(--g)}
+.act-btn.val:hover{background:var(--glt)}
+.act-btn.del:hover{border-color:rgba(239,68,68,.3);color:var(--red);background:var(--redlt)}
+
+/* ── BUTTONS ── */
+.btn-pub{background:var(--g);color:#070C09;border:none;border-radius:var(--r8);padding:9px 20px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
+.btn-pub:hover{background:var(--g2)}
+.btn-sec{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);border-radius:var(--r8);padding:9px 16px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif}
+.btn-sec:hover{background:rgba(255,255,255,.09)}
+
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.form-grid.full{grid-template-columns:1fr}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:8px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:.5px;text-transform:uppercase}
+.fg input,.fg select,.fg textarea{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:var(--r8);padding:8px 10px;font-size:11px;color:var(--ink2);font-family:'DM Sans',sans-serif;transition:border-color .15s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:rgba(0,200,122,.4)}
+.fg select option{background:#111E14;color:var(--ink2)}
+.em-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+.em-o{width:30px;height:30px;border-radius:6px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.em-o:hover,.em-o.on{border-color:var(--g);background:var(--glt)}
+
+/* ── AI BAR ── */
+.ai-bar{background:linear-gradient(135deg,rgba(24,73,214,.2),rgba(124,58,237,.2));border:1px solid rgba(124,58,237,.2);border-radius:var(--r10);padding:11px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.ai-l{display:flex;align-items:center;gap:10px}
+.ai-t{font-size:11px;font-weight:700;color:var(--ink2);margin-bottom:2px}
+.ai-s{font-size:9px;color:rgba(255,255,255,.4)}
+.ai-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:var(--ink2);border-radius:var(--r6);padding:6px 14px;font-size:10px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.ai-btn:hover{background:rgba(255,255,255,.16)}
+
+/* ── CHARTS ── */
+.bars{display:flex;align-items:flex-end;gap:5px;height:76px;margin-bottom:6px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center}
+.bc-stack{width:100%;display:flex;flex-direction:column;justify-content:flex-end;flex:1}
+.b{border-radius:3px 3px 0 0;width:100%;cursor:pointer;transition:opacity .15s}
+.b:hover{opacity:.8}
+.blbl{font-size:7px;color:rgba(255,255,255,.25);margin-top:3px;font-family:'IBM Plex Mono',monospace}
+.prog-item{margin-bottom:9px}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
+.prog-l{color:rgba(255,255,255,.55)}
+.prog-v{font-weight:700;color:var(--ink2)}
+.prog-bg{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s}
+
+/* ── ACTIVITY ── */
+.act-item{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--bdr2);align-items:flex-start}
+.act-item:last-child{border-bottom:none}
+.act-ic{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.act-t{font-size:11px;color:rgba(255,255,255,.6);line-height:1.4}
+.act-time{font-size:9px;color:rgba(255,255,255,.22);margin-top:2px;font-family:'IBM Plex Mono',monospace}
+
+/* ── PROV ITEMS ── */
+.prov-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bdr2)}
+.prov-item:last-child{border-bottom:none}
+.prov-bar-bg{flex:1;height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.prov-bar-f{height:100%;border-radius:3px;transition:width .6s}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:16px;right:16px;border-radius:var(--r10);padding:10px 16px;font-size:11px;font-weight:700;display:none;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.3);z-index:999;max-width:300px}
+.toast.show{display:flex}
+.t-ok{background:var(--g);color:#070C09}
+.t-info{background:var(--bl);color:#fff}
+.t-err{background:var(--red);color:#fff}
+
+/* ── PREVIEW BAND ── */
+.preview-band{background:var(--glt);border:1px solid var(--gltb);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--g);display:flex;gap:7px;margin:8px 0}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <div class="tb-sq">S+</div>
+    <div class="tb-name">SantéPlus Admin</div>
+    <div class="tb-badge">ÉTAT · MINISTÈRE</div>
+    <div class="tb-sep"></div>
+    <div class="tb-url">admin.santeplus.ga</div>
+  </div>
+  <div class="tb-r">
+    <div class="tb-status"><div class="status-dot"></div>Système opérationnel</div>
+    <div class="tb-sep"></div>
+    <div class="tb-user" id="tb-user-info">Chargement...</div>
+    <a href="santeplus_site.html" class="tb-site-btn">← Retour au site</a>
+    <button onclick="logout()" class="tb-site-btn" style="border-color:rgba(239,68,68,.3);color:rgba(239,68,68,.7)">Déconnexion</button>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-sec-lbl">Vue générale</div>
+    <button class="si on" id="si-dash" onclick="showTab('dash',this)"><span class="si-ic">◼</span>Tableau de bord</button>
+    <button class="si" id="si-analytics" onclick="showTab('analytics',this)"><span class="si-ic">📈</span>Analytiques</button>
+
+    <div class="sb-sec-lbl" style="margin-top:6px">Gestion</div>
+    <button class="si" id="si-meds" onclick="showTab('meds',this)"><span class="si-ic">⚕</span>Médecins<span class="si-bd">4</span></button>
+    <button class="si" id="si-inscriptions" onclick="showTab('inscriptions',this)"><span class="si-ic">📥</span>Inscriptions méd.<span class="si-bd" id="badge-inscriptions">0</span></button>
+    <button class="si" id="si-patients" onclick="showTab('patients',this)"><span class="si-ic">👥</span>Patients</button>
+    <button class="si" id="si-rdv" onclick="showTab('rdv',this)"><span class="si-ic">📅</span>Rendez-vous</button>
+    <button class="si" id="si-str" onclick="showTab('str',this)"><span class="si-ic">🏥</span>Structures</button>
+
+    <div class="sb-sec-lbl" style="margin-top:6px">CNAMGS & Finances</div>
+    <button class="si" id="si-cnamgs" onclick="showTab('cnamgs',this)"><span class="si-ic">🛡</span>Remboursements<span class="si-bd g">12</span></button>
+    <button class="si" id="si-prov" onclick="showTab('prov',this)"><span class="si-ic">🗺</span>Couverture nat.</button>
+
+    <div class="sb-sec-lbl" style="margin-top:6px">Contenu éditorial</div>
+    <button class="si" id="si-cms" onclick="showTab('cms',this)"><span class="si-ic">📰</span>Articles & Actualités</button>
+    <button class="si" id="si-new" onclick="showTab('new',this)"><span class="si-ic">✏</span>Rédiger un article</button>
+
+    <div class="sb-sec-lbl" style="margin-top:6px">Système</div>
+    <button class="si" id="si-cfg" onclick="showTab('cfg',this)"><span class="si-ic">⚙</span>Paramètres</button>
+
+    <div class="sb-footer">
+      <div class="sb-ver">SantéPlus Admin v1.0<br>© 2026 — Gabon 🇬🇦</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="tab on" id="tab-dash">
+      <div class="kpi-row kpi-row-4" id="kpi-dash"></div>
+      <div class="g21">
+        <div class="card"><div class="card-head"><div><div class="ch-t">Rendez-vous — Janv. à Mai 2026</div><div class="ch-s">Confirmés (vert) · Annulés (or)</div></div></div><div class="card-body"><div class="bars" id="bars-rdv"></div><div style="display:flex;gap:5px" id="bars-lbl"></div></div></div>
+        <div class="card"><div class="card-head"><div class="ch-t">Activité récente</div></div><div class="card-body" id="activity-list"></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-head"><div class="ch-t">RDV par spécialité — Mai 2026</div></div><div class="card-body" id="spec-chart"></div></div>
+        <div class="card"><div class="card-head"><div class="ch-t">Médecins par province</div></div><div class="card-body" id="prov-mini"></div></div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTIQUES ── -->
+    <div class="tab" id="tab-analytics">
+      <div class="kpi-row kpi-row-4">
+        <div class="kpi g"><div class="kpi-l">Taux présence</div><div class="kpi-n">94.2%</div><div class="kpi-s"><span class="kpi-up">↑ +2.1%</span> vs avril</div></div>
+        <div class="kpi b"><div class="kpi-l">Délai moyen RDV</div><div class="kpi-n">18 min</div><div class="kpi-s"><span class="kpi-up">↓ −4 min</span> vs mars</div></div>
+        <div class="kpi o"><div class="kpi-l">Note moy. médecins</div><div class="kpi-n">4.7 ★</div><div class="kpi-s">stable</div></div>
+        <div class="kpi r"><div class="kpi-l">Patients avec NAG</div><div class="kpi-n">72%</div><div class="kpi-s"><span class="kpi-up">↑ +8%</span> vs janvier</div></div>
+      </div>
+      <div class="card"><div class="card-head"><div class="ch-t">Croissance patients inscrits — Janv. à Mai 2026</div></div><div class="card-body"><div id="growth-chart"></div></div></div>
+      <div class="g2">
+        <div class="card"><div class="card-head"><div class="ch-t">Répartition régimes CNAMGS</div><div class="ch-s">9 204 patients avec NAG vérifié</div></div><div class="card-body" id="regime-chart"></div></div>
+        <div class="card"><div class="card-head"><div class="ch-t">RDV quotidiens — Mai 2026</div></div><div class="card-body"><div id="daily-chart"></div></div></div>
+      </div>
+    </div>
+
+    <!-- ── MÉDECINS ── -->
+    <div class="tab" id="tab-meds">
+      <div class="kpi-row kpi-row-4">
+        <div class="kpi g"><div class="kpi-l">Actifs</div><div class="kpi-n">243</div></div>
+        <div class="kpi o"><div class="kpi-l">En validation</div><div class="kpi-n">4</div></div>
+        <div class="kpi b"><div class="kpi-l">Conv. CNAMGS</div><div class="kpi-n">198</div></div>
+        <div class="kpi r"><div class="kpi-l">Dossiers incomplets</div><div class="kpi-n">7</div></div>
+      </div>
+      <div class="tbl-wrap" style="margin-bottom:12px">
+        <div class="tbl-head"><div><div class="tbl-t">⏳ En attente de validation ONMG</div><div class="tbl-s">Vérification N° Ordre National des Médecins du Gabon requise avant activation</div></div></div>
+        <table><thead><tr><th>Nom complet</th><th>Spécialité</th><th>Ville</th><th>N° ONMG</th><th>Convention</th><th>Soumis le</th><th>Actions</th></tr></thead><tbody id="pending-tbody"></tbody></table>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Tous les médecins enregistrés</div><div class="tbl-actions"><input class="tbl-search" type="text" placeholder="Nom, spécialité, ville..." oninput="filterTbl(this,'meds-tbody')"><button class="btn-pub" style="padding:5px 12px;font-size:10px">+ Ajouter</button></div></div>
+        <table><thead><tr><th>Médecin</th><th>Spécialité</th><th>Ville</th><th>N° ONMG</th><th>RDV/mois</th><th>CNAMGS</th><th>Statut</th><th></th></tr></thead><tbody id="meds-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── PATIENTS ── -->
+    <div class="tab" id="tab-patients">
+      <div class="kpi-row kpi-row-4">
+        <div class="kpi b"><div class="kpi-l">Total inscrits</div><div class="kpi-n">12 840</div></div>
+        <div class="kpi g"><div class="kpi-l">NAG vérifié</div><div class="kpi-n">9 204</div></div>
+        <div class="kpi o"><div class="kpi-l">Régime GEF</div><div class="kpi-n">1 847</div></div>
+        <div class="kpi r"><div class="kpi-l">Sans NAG</div><div class="kpi-n">3 636</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Registre des patients</div><input class="tbl-search" type="text" placeholder="Nom, NAG, téléphone..." oninput="filterTbl(this,'pat-tbody')"></div>
+        <table><thead><tr><th>Patient</th><th>NAG</th><th>Régime</th><th>Ville</th><th>RDV total</th><th>Dernier RDV</th><th>Statut NAG</th></tr></thead><tbody id="pat-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── RDV ── -->
+    <div class="tab" id="tab-rdv">
+      <div class="kpi-row kpi-row-4">
+        <div class="kpi g"><div class="kpi-l">Ce mois (en cours)</div><div class="kpi-n">—</div><div class="kpi-s">Données à alimenter</div></div>
+        <div class="kpi b"><div class="kpi-l">Confirmés</div><div class="kpi-n">—</div></div>
+        <div class="kpi o"><div class="kpi-l">Annulés</div><div class="kpi-n">—</div></div>
+        <div class="kpi r"><div class="kpi-l">Absences</div><div class="kpi-n">—</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Derniers rendez-vous enregistrés</div><div class="tbl-actions"><input class="tbl-search" type="text" placeholder="Patient, médecin..."><button class="btn-sec" style="padding:5px 12px;font-size:10px">⬇ Export</button></div></div>
+        <table><thead><tr><th>Patient</th><th>NAG</th><th>Médecin</th><th>Spécialité</th><th>Date & Heure</th><th>Lieu</th><th>Statut</th></tr></thead><tbody id="rdv-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── STRUCTURES ── -->
+    <div class="tab" id="tab-str">
+      <div class="kpi-row kpi-row-4">
+        <div class="kpi g"><div class="kpi-l">Total structures</div><div class="kpi-n">42</div></div>
+        <div class="kpi b"><div class="kpi-l">Publiques</div><div class="kpi-n">28</div></div>
+        <div class="kpi o"><div class="kpi-l">Privées</div><div class="kpi-n">14</div></div>
+        <div class="kpi r"><div class="kpi-l">Sans médecin inscrit</div><div class="kpi-n">6</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Structures médicales</div><input class="tbl-search" type="text" placeholder="Nom, province..." oninput="filterTbl(this,'str-tbody')"></div>
+        <table><thead><tr><th>Établissement</th><th>Type</th><th>Province</th><th>Médecins</th><th>CNAMGS</th><th>Statut</th></tr></thead><tbody id="str-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── CNAMGS ── -->
+    <div class="tab" id="tab-cnamgs">
+      <div class="kpi-row kpi-row-3">
+        <div class="kpi g"><div class="kpi-l">Remboursés ce mois</div><div class="kpi-n">47.2M F</div><div class="kpi-s"><span class="kpi-up">↑ +18%</span> vs avril</div></div>
+        <div class="kpi o"><div class="kpi-l">En attente traitement</div><div class="kpi-n">6.8M F</div><div class="kpi-s">12 dossiers</div></div>
+        <div class="kpi b"><div class="kpi-l">NAG vérifiés</div><div class="kpi-n">9 204</div><div class="kpi-s">72% des patients</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Dossiers de remboursement — Mai 2026</div><div class="tbl-actions"><input class="tbl-search" type="text" placeholder="NAG ou référence..."><button class="btn-pub" style="padding:5px 12px;font-size:10px" onclick="toast('📊 Export Excel...','info')">⬇ Export</button></div></div>
+        <table><thead><tr><th>Référence</th><th>Patient · NAG</th><th>Acte médical</th><th>Établissement</th><th>Total acte</th><th>Part CNAMGS</th><th>Statut</th></tr></thead><tbody id="cnam-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── PROVINCES ── -->
+    <div class="tab" id="tab-prov">
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div><div class="tbl-t">Couverture médicale nationale — 9 provinces</div><div class="tbl-s">Ratio habitants / médecin · Alertes de sous-couverture</div></div></div>
+        <table><thead><tr><th>Province</th><th>Population est.</th><th>Médecins</th><th>Structures</th><th>Ratio hab./méd.</th><th>Niveau</th><th>Recommandation</th></tr></thead><tbody id="prov-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── CMS ARTICLES ── -->
+    <div class="tab" id="tab-cms">
+      <div class="kpi-row kpi-row-4" id="cms-kpis"></div>
+      <div class="tbl-wrap">
+        <div class="tbl-head"><div class="tbl-t">Articles publiés sur le site</div><div class="tbl-actions"><input class="tbl-search" type="text" placeholder="Titre, catégorie..." oninput="filterTbl(this,'cms-tbody')"><button class="btn-pub" style="padding:5px 12px;font-size:10px" onclick="showTab('new',document.getElementById('si-new'))">+ Rédiger</button></div></div>
+        <table><thead><tr><th>Titre</th><th>Catégorie</th><th>Source</th><th>Date</th><th>Statut</th><th>Vues</th><th></th></tr></thead><tbody id="cms-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- ── NOUVEL ARTICLE ── -->
+    <div class="tab" id="tab-new">
+      <div class="ai-bar">
+        <div class="ai-l"><span style="font-size:18px">✨</span><div><div class="ai-t">Assistant IA — Génération d'articles santé</div><div class="ai-s">Générez automatiquement un article basé sur l'actualité santé au Gabon</div></div></div>
+        <button class="ai-btn" id="ai-btn" onclick="genAI()">Générer un article</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="ch-t">Rédiger un article</div><span style="font-size:10px;color:rgba(255,255,255,.25)">Publié directement sur la page d'accueil de santeplus_site.html</span></div>
+        <div class="card-body">
+          <div class="form-grid">
+            <div class="fg"><label>Titre *</label><input type="text" id="f-title" placeholder="Titre de l'article..."></div>
+            <div class="fg"><label>Catégorie</label><select id="f-cat"><option value="actu">Actualité</option><option value="cnamgs">CNAMGS</option><option value="reforme">Réforme santé</option><option value="conseil">Conseil santé</option><option value="sante">Santé publique</option></select></div>
+          </div>
+          <div class="form-grid full">
+            <div class="fg"><label>Résumé (affiché sur la page d'accueil du site)</label><textarea id="f-excerpt" rows="2" placeholder="2-3 phrases résumant l'article..."></textarea></div>
+          </div>
+          <div class="form-grid full">
+            <div class="fg"><label>Contenu complet</label><textarea id="f-content" rows="6" placeholder="Corps complet de l'article..."></textarea></div>
+          </div>
+          <div class="form-grid">
+            <div class="fg"><label>Source</label><input type="text" id="f-source" placeholder="GabonReview, Ministère de la Santé..."></div>
+            <div class="fg">
+              <label>Icône représentative</label>
+              <div class="em-row">
+                <div class="em-o on" onclick="pickEm(this,'🏥')">🏥</div>
+                <div class="em-o" onclick="pickEm(this,'💊')">💊</div>
+                <div class="em-o" onclick="pickEm(this,'🩺')">🩺</div>
+                <div class="em-o" onclick="pickEm(this,'🛡')">🛡</div>
+                <div class="em-o" onclick="pickEm(this,'🔬')">🔬</div>
+                <div class="em-o" onclick="pickEm(this,'🌿')">🌿</div>
+                <div class="em-o" onclick="pickEm(this,'🚨')">🚨</div>
+                <div class="em-o" onclick="pickEm(this,'❤️')">❤️</div>
+                <div class="em-o" onclick="pickEm(this,'💉')">💉</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="fg"><label>Position sur la page d'accueil</label><select id="f-featured"><option value="1">Article en vedette (grande carte)</option><option value="0">Article secondaire (petite carte)</option></select></div>
+            <div class="fg"><label>Publication</label><select id="f-statut"><option value="pub">Publier immédiatement</option><option value="draf">Enregistrer comme brouillon</option></select></div>
+          </div>
+          <div id="preview-band" class="preview-band" style="display:none">
+            <span>👁</span><span>Aperçu : <b id="preview-title"></b></span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px">
+            <button class="btn-pub" onclick="pubArticle()">🚀 Publier sur le site</button>
+            <button class="btn-sec" onclick="draftArticle()">Brouillon</button>
+            <button class="btn-sec" onclick="previewArticle()">Aperçu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PARAMÈTRES ── -->
+    <div class="tab" id="tab-cfg">
+      <div class="g2">
+        <div class="card">
+          <div class="card-head"><div class="ch-t">Intégration e-CNAMGS</div><div class="ch-s">ecnamgs.cnamgs.ga</div></div>
+          <div class="card-body">
+            <div class="prov-item"><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--ink2)">Lien direct e-CNAMGS</div><div class="mono" style="color:rgba(255,255,255,.3);margin-top:2px">ecnamgs.cnamgs.ga</div></div><span class="pill p-g">✓ Actif</span></div>
+            <div class="prov-item"><div style="flex:1;font-size:11px;font-weight:600;color:var(--ink2)">Vérification NAG (simulation)</div><span class="pill p-g">Actif</span></div>
+            <div class="prov-item"><div style="flex:1;font-size:11px;font-weight:600;color:var(--ink2)">API e-CNAMGS (vérification réelle)</div><span class="pill p-dk">Accord requis</span></div>
+            <div class="prov-item"><div style="flex:1;font-size:11px;font-weight:600;color:var(--ink2)">Transmission feuilles de soins</div><span class="pill p-dk">Accord requis</span></div>
+            <div class="prov-item" style="border-bottom:none"><div style="flex:1;font-size:11px;font-weight:600;color:var(--ink2)">SMS Africa's Talking</div><span class="pill p-o">À intégrer</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="ch-t">Accès & Rôles</div></div>
+          <div class="card-body">
+            <div class="prov-item"><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--ink2)">Ministère de la Santé</div><div style="font-size:9px;color:rgba(255,255,255,.3)">Accès complet</div></div><span class="pill p-g">Super Admin</span></div>
+            <div class="prov-item"><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--ink2)">CNAMGS — Direction SI</div><div style="font-size:9px;color:rgba(255,255,255,.3)">Remboursements uniquement</div></div><span class="pill p-b">CNAMGS Admin</span></div>
+            <div class="prov-item"><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--ink2)">ONMG — Ordre des Médecins</div><div style="font-size:9px;color:rgba(255,255,255,.3)">Validation médecins</div></div><span class="pill p-dk">En attente</span></div>
+            <div class="prov-item" style="border-bottom:none"><div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--ink2)">DRS Régionales (9 provinces)</div><div style="font-size:9px;color:rgba(255,255,255,.3)">Vue province uniquement</div></div><span class="pill p-dk">À configurer</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="ch-t">Contact & Informations projet</div></div>
+        <div class="card-body">
+          <div class="prov-item"><div style="flex:1;font-size:11px;color:rgba(255,255,255,.5)">Email</div><span class="mono" style="color:var(--g)">Bartonimoutete@gmail.com</span></div>
+          <div class="prov-item"><div style="flex:1;font-size:11px;color:rgba(255,255,255,.5)">Téléphone</div><span class="mono" style="color:var(--g)">+241 07 55 87 83 82</span></div>
+          <div class="prov-item"><div style="flex:1;font-size:11px;color:rgba(255,255,255,.5)">Adresse</div><span style="font-size:11px;color:rgba(255,255,255,.6)">Libreville, République Gabonaise</span></div>
+          <div class="prov-item" style="border-bottom:none"><div style="flex:1;font-size:11px;color:rgba(255,255,255,.5)">Dossier CNAMGS</div><a href="mailto:infos@cnamgs.ga" style="font-size:11px;color:var(--g);text-decoration:none">Envoyer à infos@cnamgs.ga ↗</a></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── INSCRIPTIONS MÉDECINS ── -->
+    <div class="tab" id="tab-inscriptions">
+      <div class="kpi-row kpi-row-4" id="insc-kpis">
+        <div class="kpi g"><div class="kpi-l">En attente</div><div class="kpi-n" id="insc-k1">0</div></div>
+        <div class="kpi b"><div class="kpi-l">Validés</div><div class="kpi-n" id="insc-k2">0</div></div>
+        <div class="kpi o"><div class="kpi-l">Refusés</div><div class="kpi-n" id="insc-k3">0</div></div>
+        <div class="kpi r"><div class="kpi-l">Total reçus</div><div class="kpi-n" id="insc-k4">0</div></div>
+      </div>
+      <div class="tbl-wrap">
+        <div class="tbl-head">
+          <div>
+            <div class="tbl-t">📥 Dossiers d'inscription médecins</div>
+            <div class="tbl-s">Soumis via santeplus_inscription_medecin.html — Validation ONMG requise</div>
+          </div>
+          <div class="tbl-actions">
+            <input class="tbl-search" type="text" placeholder="Nom, spécialité..." oninput="filterTbl(this,'insc-tbody')">
+            <button class="btn-pub" style="padding:5px 12px;font-size:10px" onclick="refreshInscriptions()">↻ Actualiser</button>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Médecin</th><th>Spécialité</th><th>Ville / Quartier</th>
+            <th>N° ONMG</th><th>CNAMGS</th><th>Repère</th>
+            <th>Soumis le</th><th>Statut</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="insc-tbody">
+            <tr><td colspan="9" style="text-align:center;padding:24px;color:rgba(255,255,255,.3)">Aucune inscription reçue pour le moment.<br><span style="font-size:10px">Les dossiers soumis via le formulaire apparaissent ici automatiquement.</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- DETAIL PANEL -->
+      <div id="insc-detail" style="display:none">
+        <div class="card" style="margin-top:14px">
+          <div class="card-head">
+            <div class="ch-t" id="det-title">Détail du dossier</div>
+            <button onclick="closeDetail()" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:5px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:Syne,sans-serif">✕ Fermer</button>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px" id="det-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+
+// ══════════════════════════════════════════
+// PROTECTION SESSION — NE PAS MODIFIER
+// ══════════════════════════════════════════
+(function() {
+  const SESSION_KEY = 'sp_admin_session';
+  const LOGIN_PAGE  = 'santeplus_login.html';
+
+  function redirect() {
+    // Efface toute session invalide et redirige
+    sessionStorage.removeItem(SESSION_KEY);
+    window.location.replace(LOGIN_PAGE);
+  }
+
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) { redirect(); return; }
+
+    const session = JSON.parse(raw);
+
+    // Vérifier expiration (4h)
+    if (!session.expires || Date.now() >= session.expires) {
+      redirect(); return;
+    }
+
+    // Tout OK — afficher le nom dans la topbar si besoin
+    window.SP_SESSION = session;
+
+  } catch(e) {
+    redirect();
+  }
+})();
+// ══════════════════════════════════════════
+
+let curEmoji='🏥';
+
+// ── DATA ──
+const PENDING=[
+  {nom:'Dr. Minko Edzang Paul',spec:'Cardiologue',ville:'Libreville',onmg:'ONMG-2024-07341',conv:'Conventionné',date:'08/05/2026'},
+  {nom:'Dr. Nnang Obiang Claire',spec:'Gynécologue',ville:'Port-Gentil',onmg:'ONMG-2023-06812',conv:'Conventionné',date:'09/05/2026'},
+  {nom:'Dr. Bounah Jean-Luc',spec:'Pédiatre',ville:'Franceville',onmg:'ONMG-2024-07589',conv:'Non conv.',date:'10/05/2026'},
+  {nom:'Dr. Moussavou Grace',spec:'Généraliste',ville:'Oyem',onmg:'ONMG-2022-05204',conv:'Conventionné',date:'11/05/2026'},
+];
+const MEDS=[
+  {nom:'Dr. Tatiana Augé',spec:'Pédiatre',ville:'Libreville',onmg:'ONMG-2019-04201',rdv:142,cnamgs:true},
+  {nom:'Dr. Gabriel Mendome',spec:'Gynécologue',ville:'Libreville',onmg:'ONMG-2018-03814',rdv:98,cnamgs:true},
+  {nom:'Dr. François Libadi',spec:'Dermatologue',ville:'Libreville',onmg:'ONMG-2017-02991',rdv:67,cnamgs:true},
+  {nom:'Dr. Raouf Abdou',spec:'Pédiatre',ville:'Libreville',onmg:'ONMG-2020-05012',rdv:81,cnamgs:true},
+  {nom:'Dr. Dominique Tible',spec:'Généraliste',ville:'Libreville',onmg:'ONMG-2016-02304',rdv:204,cnamgs:false},
+  {nom:'Dr. Andjanga Onewin',spec:'Généraliste',ville:'Libreville',onmg:'ONMG-2021-05801',rdv:88,cnamgs:true},
+  {nom:'Dr. Nziengui Ernest',spec:'Généraliste',ville:'Libreville',onmg:'ONMG-2022-06104',rdv:54,cnamgs:false},
+];
+const PATS=[
+  {nom:'Koumba Mboula',nag:'2 408 100 447 01',reg:'Salarié privé',ville:'Libreville',rdv:9,last:'08/05/2026',st:'Vérifié'},
+  {nom:'Jean-Marc Ndong',nag:'1 903 042 118 02',reg:'Agent public',ville:'Libreville',rdv:4,last:'09/05/2026',st:'Vérifié'},
+  {nom:'Adèle Nguema Eya',nag:'3 112 088 302 01',reg:'GEF',ville:'Franceville',rdv:6,last:'22/04/2026',st:'Vérifié'},
+  {nom:'Robert Mboumba',nag:'2 205 071 441 03',reg:'Salarié privé',ville:'Port-Gentil',rdv:2,last:'30/04/2026',st:'Vérifié'},
+  {nom:'Estelle Ovono',nag:'—',reg:'—',ville:'Oyem',rdv:1,last:'05/05/2026',st:'Sans NAG'},
+  {nom:'Paul Mintsa',nag:'2 104 062 509 01',reg:'Agent public',ville:'Libreville',rdv:11,last:'10/05/2026',st:'Vérifié'},
+];
+const RDVS=[
+  {pat:'Koumba Mboula',nag:'2 408 100 447 01',med:'Dr. T. Augé',spec:'Pédiatre',dt:'14/05 09h30',lieu:'Cabinet André Mintsa',st:'Confirmé'},
+  {pat:'Jean-Marc Ndong',nag:'1 903 042 118 02',med:'Dr. G. Mendome',spec:'Gynécologue',dt:'14/05 10h00',lieu:'Clinique El-Rapha',st:'Confirmé'},
+  {pat:'Adèle Nguema',nag:'3 112 088 302 01',med:'Dr. F. Libadi',spec:'Dermatologue',dt:'14/05 14h30',lieu:'Cabinet Batterie IV',st:'Confirmé'},
+  {pat:'Robert Mboumba',nag:'2 205 071 441 03',med:'Dr. D. Tible',spec:'Généraliste',dt:'14/05 08h00',lieu:'Cabinet Gué-Gué',st:'Annulé'},
+];
+const STRS=[
+  {nom:'CHU de Libreville',type:'Public',prov:'Estuaire',meds:42,cnamgs:true},
+  {nom:'CHU Angondjé',type:'Public',prov:'Estuaire',meds:38,cnamgs:true},
+  {nom:'CHU Owendo',type:'Public',prov:'Estuaire',meds:29,cnamgs:true},
+  {nom:'Clinique El-Rapha',type:'Privé',prov:'Estuaire',meds:12,cnamgs:true},
+  {nom:'CHR Port-Gentil',type:'Public',prov:'Ogooué-Maritime',meds:18,cnamgs:true},
+  {nom:'CHR Franceville',type:'Public',prov:'Haut-Ogooué',meds:15,cnamgs:true},
+  {nom:'Hôp. Albert Schweitzer',type:'Privé',prov:'Moyen-Ogooué',meds:8,cnamgs:true},
+  {nom:'CHR Oyem',type:'Public',prov:'Woleu-Ntem',meds:4,cnamgs:true},
+];
+const CNAM=[
+  {ref:'CNAMGS-REM-0921',pat:'Koumba Mboula',nag:'2 408 100 447 01',acte:'Hospitalisation appendicite',etab:'CHU Angondjé',tot:290500,cnam:232400,st:'Traité'},
+  {ref:'CNAMGS-REM-0920',pat:'Jean-Marc Ndong',nag:'1 903 042 118 02',acte:'Consultation gynécologie',etab:'El-Rapha',tot:25000,cnam:20000,st:'Traité'},
+  {ref:'CNAMGS-REM-0919',pat:'Adèle Nguema',nag:'3 112 088 302 01',acte:'Bilan sanguin complet',etab:'Labo CHU Angondjé',tot:35000,cnam:28000,st:'Traité'},
+  {ref:'CNAMGS-REM-0918',pat:'Robert Mboumba',nag:'2 205 071 441 03',acte:'Suivi diabète (MLD 90%)',etab:'CHU Libreville',tot:45000,cnam:40500,st:'En attente'},
+  {ref:'CNAMGS-REM-0917',pat:'Mireille Bongo',nag:'1 807 055 211 01',acte:'Accouchement médicalisé',etab:'CHU Owendo',tot:80000,cnam:80000,st:'Traité'},
+  {ref:'CNAMGS-REM-0916',pat:'Serge Nzamba',nag:'2 601 093 774 02',acte:'Compléments alimentaires',etab:'Pharmacie Centre',tot:34500,cnam:0,st:'Rejeté'},
+];
+const PROVINCES=[
+  {n:'Estuaire',meds:147,str:18,pop:800000,col:'#00C87A'},
+  {n:'Ogooué-Maritime',meds:28,str:6,pop:160000,col:'#60A5FA'},
+  {n:'Haut-Ogooué',meds:22,str:5,pop:120000,col:'#A78BFA'},
+  {n:'Moyen-Ogooué',meds:11,str:4,pop:70000,col:'#F472B6'},
+  {n:'Woleu-Ntem',meds:9,str:3,pop:155000,col:'#F87171'},
+  {n:'Ngounié',meds:10,str:3,pop:100000,col:'#34D399'},
+  {n:'Nyanga',meds:6,str:2,pop:55000,col:'#A78BFA'},
+  {n:'Ogooué-Lolo',meds:6,str:2,pop:65000,col:'#FCD34D'},
+  {n:'Ogooué-Ivindo',meds:8,str:3,pop:65000,col:'#FB923C'},
+];
+
+// ── NAV ──
+function showTab(id, el){
+  document.querySelectorAll('.si').forEach(i=>i.classList.remove('on'));
+  el.classList.add('on');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  document.querySelector('.main').scrollTop=0;
+}
+function filterTbl(inp, tbodyId){
+  const q=inp.value.toLowerCase();
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'':'none');
+}
+
+// ── RENDER ──
+function renderAll(){
+  // KPIs dashboard
+  document.getElementById('kpi-dash').innerHTML=`
+    <div class="kpi g"><div class="kpi-l">Médecins actifs</div><div class="kpi-n">247</div><div class="kpi-s"><span class="kpi-up">↑ 12</span> ce mois · 4 en validation</div></div>
+    <div class="kpi b"><div class="kpi-l">Patients inscrits</div><div class="kpi-n">12 840</div><div class="kpi-s"><span class="kpi-up">↑ 8.3%</span> vs mois dernier</div></div>
+    <div class="kpi o"><div class="kpi-l">RDV ce mois (objectif)</div><div class="kpi-n">—</div><div class="kpi-s">Données à alimenter au lancement</div></div>
+    <div class="kpi r"><div class="kpi-l">Remb. CNAMGS (FCFA)</div><div class="kpi-n">47.2M</div><div class="kpi-s">12 dossiers en attente</div></div>`;
+
+  // Bar chart
+  const bdata=[{m:'Jan',c:1200,a:80},{m:'Fév',c:1500,a:95},{m:'Mar',c:1900,a:110},{m:'Avr',c:2200,a:130},{m:'Mai',c:2700,a:160}];
+  const bmax=Math.max(...bdata.map(d=>d.c+d.a));
+  document.getElementById('bars-rdv').innerHTML=bdata.map(d=>`<div class="bc" style="flex:1;height:76px;display:flex;flex-direction:column;align-items:center"><div style="width:100%;height:${((d.a/bmax)*76).toFixed(0)}px;background:rgba(252,209,22,.55);border-radius:3px 3px 0 0;margin-bottom:1px"></div><div class="b" style="height:${((d.c/bmax)*76).toFixed(0)}px;background:var(--g)"></div></div>`).join('');
+  document.getElementById('bars-lbl').innerHTML=bdata.map(d=>`<div style="flex:1;text-align:center;font-size:7px;color:rgba(255,255,255,.25);font-family:'IBM Plex Mono',monospace">${d.m}</div>`).join('');
+
+  // Activity
+  document.getElementById('activity-list').innerHTML=[
+    {ic:'✅',bg:'rgba(0,200,122,.1)',t:'<b style="color:var(--ink2)">Dr. Nnang Obiang</b> validé — Gynéco · Port-Gentil',time:'il y a 8 min'},
+    {ic:'🛡',bg:'rgba(24,73,214,.1)',t:'Remboursement <b style="color:var(--ink2)">232 400 F</b> traité — CHU Angondjé',time:'il y a 24 min'},
+    {ic:'⏳',bg:'rgba(252,200,60,.07)',t:'<b style="color:var(--ink2)">Dr. Minko Edzang</b> — dossier ONMG en cours',time:'il y a 1h'},
+    {ic:'⚠',bg:'rgba(239,68,68,.07)',t:'Alerte sous-couverture <b style="color:var(--ink2)">Woleu-Ntem</b> (9 méd. pour 155k hab.)',time:'Hier 18h32'},
+    {ic:'📰',bg:'rgba(0,200,122,.07)',t:'Article publié sur le site : <b style="color:var(--ink2)">Dialyse prise en charge à 100%</b>',time:'Hier 10h15'},
+  ].map(a=>`<div class="act-item"><div class="act-ic" style="background:${a.bg}">${a.ic}</div><div><div class="act-t">${a.t}</div><div class="act-time">${a.time}</div></div></div>`).join('');
+
+  // Spec chart
+  const specs=[{n:'Généraliste',v:38,c:'#00C87A'},{n:'Pédiatre',v:22,c:'#60A5FA'},{n:'Gynécologue',v:19,c:'#A78BFA'},{n:'Cardiologue',v:12,c:'#F87171'},{n:'Ophtalmologue',v:9,c:'#FB923C'}];
+  const sm=specs[0].v;
+  document.getElementById('spec-chart').innerHTML=specs.map(s=>`<div class="prog-item"><div class="prog-row"><span class="prog-l">${s.n}</span><span class="prog-v">${s.v}%</span></div><div class="prog-bg"><div class="prog-fill" style="width:${s.v/sm*100}%;background:${s.c}"></div></div></div>`).join('');
+
+  // Province mini
+  const pmax=PROVINCES[0].meds;
+  document.getElementById('prov-mini').innerHTML=PROVINCES.slice(0,6).map(p=>`<div class="prov-item"><div style="width:7px;height:26px;border-radius:2px;background:${p.col};flex-shrink:0"></div><div style="flex:1;margin-left:8px;min-width:0"><div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.7)">${p.n}</div><div class="prov-bar-bg"><div class="prov-bar-f" style="width:${p.meds/pmax*100}%;background:${p.col}"></div></div></div><div style="font-size:11px;font-weight:700;color:${p.col};margin-left:8px">${p.meds}</div></div>`).join('');
+
+  // Analytics charts
+  const gdata=[{m:'Jan',v:8200},{m:'Fév',v:9100},{m:'Mar',v:10200},{m:'Avr',v:11400},{m:'Mai',v:12840}];
+  const W=380,H=72,P=14,mn=7500,mx=13500;
+  const gx=i=>P+i*((W-2*P)/(gdata.length-1));
+  const gy=v=>H-P-((v-mn)/(mx-mn))*(H-2*P);
+  const pts=gdata.map((d,i)=>`${gx(i)},${gy(d.v)}`).join(' ');
+  document.getElementById('growth-chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:72px"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#00C87A" stop-opacity=".2"/><stop offset="100%" stop-color="#00C87A" stop-opacity="0"/></linearGradient></defs><polygon points="${pts} ${gx(gdata.length-1)},${H-P} ${P},${H-P}" fill="url(#gg)"/><polyline points="${pts}" fill="none" stroke="#00C87A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${gdata.map((d,i)=>`<circle cx="${gx(i)}" cy="${gy(d.v)}" r="3.5" fill="#00C87A"/><text x="${gx(i)}" y="${gy(d.v)-7}" text-anchor="middle" font-size="8" fill="rgba(255,255,255,.4)" font-family="IBM Plex Mono">${d.v.toLocaleString('fr-FR')}</text><text x="${gx(i)}" y="${H-2}" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.22)">${d.m}</text>`).join('')}</svg>`;
+
+  const reg=[{l:'Salarié privé',v:4820,c:'#00C87A'},{l:'Agent public',v:2940,c:'#60A5FA'},{l:'GEF',v:1444,c:'#FB923C'}];
+  const rt=reg.reduce((s,r)=>s+r.v,0);
+  document.getElementById('regime-chart').innerHTML=reg.map(r=>`<div class="prog-item"><div class="prog-row"><span class="prog-l">${r.l}</span><span class="prog-v" style="color:${r.c}">${r.v.toLocaleString('fr-FR')}</span></div><div class="prog-bg"><div class="prog-fill" style="width:${(r.v/rt*100).toFixed(0)}%;background:${r.c}"></div></div></div>`).join('');
+
+  const daily=Array.from({length:31},(_,i)=>600+Math.round(Math.sin(i*.5)*350+Math.random()*250));
+  daily[24]=2100;daily[20]=1960;
+  const dmax=Math.max(...daily);
+  const DW=380,DH=60,DP=4,dbw=(DW-2*DP)/daily.length-1;
+  document.getElementById('daily-chart').innerHTML=`<svg viewBox="0 0 ${DW} ${DH}" style="width:100%;height:60px">${daily.map((v,i)=>`<rect x="${DP+i*(dbw+1)}" y="${DH-DP-(v/dmax)*(DH-2*DP)}" width="${dbw}" height="${(v/dmax)*(DH-2*DP)}" fill="#00C87A" opacity="${.3+.7*(v/dmax)}" rx="1.5"/>`).join('')}<text x="${DP}" y="${DH+1}" font-size="7" fill="rgba(255,255,255,.22)">1 Mai</text><text x="${DW-DP}" y="${DH+1}" font-size="7" fill="rgba(255,255,255,.22)" text-anchor="end">31 Mai</text></svg>`;
+
+  // Tables
+  document.getElementById('pending-tbody').innerHTML=PENDING.map(m=>`<tr><td class="td-w">${m.nom}</td><td>${m.spec}</td><td>${m.ville}</td><td class="mono">${m.onmg}</td><td><span class="pill ${m.conv==='Conventionné'?'p-g':'p-o'}">${m.conv}</span></td><td style="color:rgba(255,255,255,.35)">${m.date}</td><td><button class="act-btn val" onclick="this.closest('tr').style.opacity='.5';this.textContent='✓ Validé';toast('✅ Dr. validé — actif sur le site','ok')">✓ Valider</button><button class="act-btn del" onclick="this.closest('tr').style.opacity='.5';toast('✗ Dossier refusé','err')">✗ Refuser</button></td></tr>`).join('');
+  document.getElementById('meds-tbody').innerHTML=MEDS.map(m=>`<tr><td class="td-w">${m.nom}</td><td>${m.spec}</td><td>${m.ville}</td><td class="mono">${m.onmg}</td><td style="font-weight:700;color:var(--g)">${m.rdv}</td><td><span class="pill ${m.cnamgs?'p-g':'p-o'}">${m.cnamgs?'✓ Conv.':'Non conv.'}</span></td><td><span class="pill p-g">Actif</span></td></tr>`).join('');
+  document.getElementById('pat-tbody').innerHTML=PATS.map(p=>`<tr><td class="td-w">${p.nom}</td><td class="mono">${p.nag}</td><td><span class="pill ${p.reg==='GEF'?'p-gld':p.reg==='—'?'p-r':'p-b'}">${p.reg}</span></td><td>${p.ville}</td><td style="font-weight:700;color:var(--g)">${p.rdv}</td><td style="color:rgba(255,255,255,.35)">${p.last}</td><td><span class="pill ${p.st==='Vérifié'?'p-g':'p-r'}">${p.st}</span></td></tr>`).join('');
+  document.getElementById('rdv-tbody').innerHTML=RDVS.map(r=>`<tr><td class="td-w">${r.pat}</td><td class="mono">${r.nag}</td><td>${r.med}</td><td style="color:rgba(255,255,255,.45)">${r.spec}</td><td style="font-weight:600">${r.dt}</td><td style="font-size:10px;color:rgba(255,255,255,.35)">${r.lieu}</td><td><span class="pill ${r.st==='Confirmé'?'p-g':'p-r'}">${r.st}</span></td></tr>`).join('');
+  document.getElementById('str-tbody').innerHTML=STRS.map(s=>`<tr><td class="td-w">${s.nom}</td><td><span class="pill ${s.type==='Public'?'p-b':'p-gld'}">${s.type}</span></td><td>${s.prov}</td><td style="font-weight:700;color:var(--g)">${s.meds}</td><td><span class="pill ${s.cnamgs?'p-g':'p-dk'}">${s.cnamgs?'✓ Conv.':'Non'}</span></td><td><span class="pill p-g">Actif</span></td></tr>`).join('');
+  document.getElementById('cnam-tbody').innerHTML=CNAM.map(r=>`<tr><td class="mono">${r.ref}</td><td><div class="td-w">${r.pat}</div><div class="mono">${r.nag}</div></td><td>${r.acte}</td><td style="font-size:10px;color:rgba(255,255,255,.35)">${r.etab}</td><td style="font-weight:700">${r.tot.toLocaleString('fr-FR')} F</td><td style="font-weight:700;color:var(--g)">${r.cnam>0?r.cnam.toLocaleString('fr-FR')+' F':'—'}</td><td><span class="pill ${r.st==='Traité'?'p-g':r.st==='En attente'?'p-gld':'p-r'}">${r.st}</span></td></tr>`).join('');
+  document.getElementById('prov-tbody').innerHTML=PROVINCES.map(p=>{
+    const ratio=Math.round(p.pop/p.meds);
+    const crit=ratio>15000,insuf=ratio>7000;
+    return`<tr><td class="td-w">${p.n}</td><td>${(p.pop/1000).toFixed(0)} 000</td><td style="font-weight:700;color:var(--g)">${p.meds}</td><td>${p.str}</td><td class="mono" style="color:${crit?'var(--red)':insuf?'var(--ora)':'var(--g)'}">${ratio.toLocaleString('fr-FR')}</td><td><span class="pill ${crit?'p-r':insuf?'p-o':'p-g'}">${crit?'⚠ Critique':insuf?'⚠ Insuffisant':'✓ OK'}</span></td><td style="font-size:10px;color:rgba(255,255,255,.35)">${crit||insuf?'+'+(Math.ceil(p.pop/5000)-p.meds)+' méd. min.':'—'}</td></tr>`;
+  }).join('');
+
+  renderCmsTable();
+}
+
+// ── CMS ──
+function getArticles(){
+  try{const s=localStorage.getItem('sp_articles');if(s)return JSON.parse(s);}catch(e){}
+  return DEFAULT_ARTS;
+}
+function saveArticles(arts){try{localStorage.setItem('sp_articles',JSON.stringify(arts));}catch(e){}}
+
+const DEFAULT_ARTS=[
+  {id:1,title:"Oligui Nguema : \"Aucun Gabonais ne devrait avoir peur d'aller à l'hôpital\"",cat:'actu',source:'GabonReview',date:'04/05/2026',statut:'pub',vues:824,icon:'🏥',featured:true,excerpt:"Le président a répondu aux questions sur les dysfonctionnements de la CNAMGS lors d'une interview à L'Union."},
+  {id:2,title:"Dialyse prise en charge à 100% par la CNAMGS",cat:'cnamgs',source:'GabonReview',date:'13/02/2026',statut:'pub',vues:1240,icon:'🛡',featured:true,excerpt:"Le Pr Elsa Ayo Bivigou annonce la fin de la rupture et la prise en charge intégrale de la dialyse."},
+  {id:3,title:"Journée mondiale de la santé 2026 : \"La science, socle de l'action sanitaire\"",cat:'reforme',source:'Infos Gabon',date:'09/04/2026',statut:'pub',vues:412,icon:'🔬',featured:false,excerpt:"Sous le thème Unissons-nous pour la santé, le Gabon réaffirme son engagement."},
+  {id:4,title:"Urgences gratuites 24h : la mesure forte de la ministre Ayo Bivigou",cat:'reforme',source:'GabonReview',date:'13/02/2026',statut:'pub',vues:956,icon:'🚨',featured:true,excerpt:"Gratuité totale de la prise en charge des urgences durant les 24 premières heures."},
+];
+
+function renderCmsTable(){
+  const arts=getArticles();
+  const pub=arts.filter(a=>a.statut==='pub').length;
+  const draf=arts.filter(a=>a.statut==='draf').length;
+  const vues=arts.reduce((s,a)=>s+(a.vues||0),0);
+  document.getElementById('cms-kpis').innerHTML=`
+    <div class="kpi g"><div class="kpi-l">Articles publiés</div><div class="kpi-n">${pub}</div></div>
+    <div class="kpi o"><div class="kpi-l">Brouillons</div><div class="kpi-n">${draf}</div></div>
+    <div class="kpi b"><div class="kpi-l">Vues totales</div><div class="kpi-n">${vues.toLocaleString('fr-FR')}</div></div>
+    <div class="kpi r"><div class="kpi-l">Total articles</div><div class="kpi-n">${arts.length}</div></div>`;
+  const catLab={actu:'Actualité',cnamgs:'CNAMGS',reforme:'Réforme',conseil:'Conseil',sante:'Santé pub.'};
+  document.getElementById('cms-tbody').innerHTML=arts.map(a=>`<tr>
+    <td class="td-w" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.icon} ${a.title}</td>
+    <td><span class="pill p-dk">${catLab[a.cat]||a.cat}</span></td>
+    <td style="color:rgba(255,255,255,.35)">${a.source||'—'}</td>
+    <td style="color:rgba(255,255,255,.35)">${a.date}</td>
+    <td><span class="pill ${a.statut==='pub'?'p-g':'p-dk'}">${a.statut==='pub'?'✓ Publié':'Brouillon'}</span></td>
+    <td style="font-weight:700;color:var(--g)">${a.vues||'—'}</td>
+    <td>
+      <button class="act-btn" onclick="editArt(${a.id})">Éditer</button>
+      <button class="act-btn del" onclick="delArt(${a.id})">Suppr.</button>
+    </td>
+  </tr>`).join('');
+}
+
+function pickEm(el,em){document.querySelectorAll('.em-o').forEach(e=>e.classList.remove('on'));el.classList.add('on');curEmoji=em;}
+
+function previewArticle(){
+  const t=document.getElementById('f-title').value;
+  if(!t){toast('⚠ Ajoutez un titre','err');return;}
+  document.getElementById('preview-title').textContent=t;
+  document.getElementById('preview-band').style.display='flex';
+}
+
+function pubArticle(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){toast('⚠ Le titre est obligatoire','err');return;}
+  const excerpt=document.getElementById('f-excerpt').value.trim();
+  const cat=document.getElementById('f-cat').value;
+  const source=document.getElementById('f-source').value.trim()||'SantéPlus';
+  const featured=document.getElementById('f-featured').value==='1';
+  const now=new Date();
+  const date=`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+  const arts=getArticles();
+  arts.unshift({id:Date.now(),title,excerpt:excerpt||title.slice(0,80)+'...',cat,source,date,statut:'pub',vues:0,icon:curEmoji,featured});
+  saveArticles(arts);
+  ['f-title','f-excerpt','f-content','f-source'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('preview-band').style.display='none';
+  renderCmsTable();
+  toast('✅ Article publié sur le site santeplus_site.html !','ok');
+  showTab('cms',document.getElementById('si-cms'));
+}
+
+function draftArticle(){
+  const title=document.getElementById('f-title').value.trim();
+  if(!title){toast('⚠ Titre obligatoire','err');return;}
+  const now=new Date();
+  const arts=getArticles();
+  arts.unshift({id:Date.now(),title,excerpt:'Brouillon...',cat:document.getElementById('f-cat').value,source:'SantéPlus',date:`${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`,statut:'draf',vues:0,icon:curEmoji,featured:false});
+  saveArticles(arts);
+  renderCmsTable();
+  toast('💾 Brouillon enregistré','info');
+}
+
+function editArt(id){
+  const arts=getArticles();
+  const a=arts.find(x=>x.id===id); if(!a)return;
+  document.getElementById('f-title').value=a.title;
+  document.getElementById('f-excerpt').value=a.excerpt||'';
+  document.getElementById('f-source').value=a.source||'';
+  document.getElementById('f-cat').value=a.cat;
+  showTab('new',document.getElementById('si-new'));
+  toast('✏ Article chargé — modifiez et republiez','info');
+}
+
+function delArt(id){
+  if(!confirm('Supprimer cet article ?'))return;
+  const arts=getArticles().filter(a=>a.id!==id);
+  saveArticles(arts);
+  renderCmsTable();
+  toast('🗑 Article supprimé du site','ok');
+}
+
+function genAI(){
+  const btn=document.getElementById('ai-btn');
+  btn.innerHTML='⏳ Génération...';btn.disabled=true;
+  const arr=[
+    {t:"Nouveau scanner au CHUL : fin des évacuations vers le secteur privé",e:"Le CHU de Libreville s'est doté d'un scanner haute résolution, réduisant les évacuations coûteuses vers les cliniques privées et allégeant la charge sur les patients CNAMGS.",c:'reforme',ic:'🔬',s:'Ministère de la Santé'},
+    {t:"Centres de dialyse : déploiement dans toutes les provinces d'ici 2027",e:"La ministre Elsa Ayo Bivigou confirme la prise en charge à 100% de la dialyse et annonce l'ouverture progressive de centres régionaux.",c:'cnamgs',ic:'🛡',s:'GabonReview'},
+    {t:"Programme vaccinal renforcé : 12 maladies couvertes gratuitement",e:"Le Ministère de la Santé annonce l'extension du calendrier vaccinal national incluant la méningite et le rotavirus pour les enfants de moins de 5 ans.",c:'sante',ic:'💉',s:'Ministère de la Santé'},
+    {t:"Caravane médicale à Franceville : 800 consultations gratuites en 3 jours",e:"Le CHR de Franceville a organisé une caravane médicale pluridisciplinaire dans les quartiers défavorisés, avec 800 patients reçus.",c:'sante',ic:'🌿',s:'Infos Gabon'},
+  ];
+  const pick=arr[Math.floor(Math.random()*arr.length)];
+  setTimeout(()=>{
+    document.getElementById('f-title').value=pick.t;
+    document.getElementById('f-excerpt').value=pick.e;
+    document.getElementById('f-source').value=pick.s;
+    document.getElementById('f-cat').value=pick.c;
+    document.querySelectorAll('.em-o').forEach(e=>{if(e.textContent===pick.ic)pickEm(e,pick.ic);});
+    btn.innerHTML='Générer un article';btn.disabled=false;
+    toast('✨ Article généré — vérifiez avant de publier','info');
+  },1800);
+}
+
+// ── TOAST ──
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast-el');
+  t.className=`toast t-${type} show`;
+  t.textContent=msg;
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── SESSION ──
+function logout() {
+  if (confirm('Se déconnecter de l\'administration ?')) {
+    sessionStorage.removeItem('sp_admin_session');
+    window.location.replace('santeplus_login.html');
+  }
+}
+
+function updateUserInfo() {
+  try {
+    const s = JSON.parse(sessionStorage.getItem('sp_admin_session') || '{}');
+    const el = document.getElementById('tb-user-info');
+    if (el && s.email) {
+      const exp = new Date(s.expires);
+      const h = String(exp.getHours()).padStart(2,'0');
+      const m = String(exp.getMinutes()).padStart(2,'0');
+      el.textContent = s.email + ' · ' + (s.role || 'Admin') + ' · Session exp. ' + h + 'h' + m;
+    }
+  } catch(e) {}
+}
+
+
+// ── INSCRIPTIONS MÉDECINS ──
+function loadInscriptions() {
+  try {
+    return JSON.parse(localStorage.getItem('sp_inscriptions_medecins') || '[]');
+  } catch(e) { return []; }
+}
+function saveInscriptions(data) {
+  try { localStorage.setItem('sp_inscriptions_medecins', JSON.stringify(data)); } catch(e){}
+}
+
+function refreshInscriptions() {
+  const data = loadInscriptions();
+  const att = data.filter(d=>d.statut==='en_attente').length;
+  const val = data.filter(d=>d.statut==='valide').length;
+  const ref = data.filter(d=>d.statut==='refuse').length;
+  // KPIs
+  if(document.getElementById('insc-k1')) {
+    document.getElementById('insc-k1').textContent = att;
+    document.getElementById('insc-k2').textContent = val;
+    document.getElementById('insc-k3').textContent = ref;
+    document.getElementById('insc-k4').textContent = data.length;
+  }
+  // Badge sidebar
+  const badge = document.getElementById('badge-inscriptions');
+  if(badge) badge.textContent = att;
+  if(badge) badge.style.background = att > 0 ? 'var(--red)' : 'rgba(255,255,255,.15)';
+
+  // Table
+  const tbody = document.getElementById('insc-tbody');
+  if(!tbody) return;
+  if(!data.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:24px;color:rgba(255,255,255,.3)">Aucune inscription reçue pour le moment.<br><span style=\"font-size:10px\">Les dossiers soumis via le formulaire apparaissent ici automatiquement.</span></td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((d,i) => {
+    const date = new Date(d.dateInscription);
+    const dateStr = date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const statusClass = d.statut==='en_attente' ? 'p-o' : d.statut==='valide' ? 'p-g' : 'p-r';
+    const statusLabel = d.statut==='en_attente' ? '⏳ En attente' : d.statut==='valide' ? '✓ Validé' : '✗ Refusé';
+    const gps = d.gpsLat ? `<span title="GPS : ${d.gpsLat.toFixed(4)}, ${d.gpsLng.toFixed(4)}" style="color:var(--g);cursor:help">📍</span>` : '';
+    return `<tr>
+      <td><div class="td-w">${d.titre || 'Dr.'} ${d.prenom} ${d.nom}</div><div class="mono">${d.telephone || ''}</div></td>
+      <td>${d.specialite || '—'}</td>
+      <td><div style="font-weight:600;color:rgba(255,255,255,.8)">${d.ville || ''} · ${d.quartier || ''}</div><div style="font-size:9px;color:rgba(255,255,255,.35);margin-top:1px">${gps} ${(d.repere||'').slice(0,40)}${(d.repere||'').length>40?'...':''}</div></td>
+      <td class="mono">${d.onmg || '—'}</td>
+      <td><span class="pill ${d.cnamgs==='oui'?'p-g':'p-dk'}">${d.cnamgs==='oui'?'✓ Conv.':'Non conv.'}</span></td>
+      <td style="font-size:10px;color:rgba(255,255,255,.4);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.repere||'—'}</td>
+      <td style="color:rgba(255,255,255,.35);font-size:10px">${dateStr}</td>
+      <td><span class="pill ${statusClass}">${statusLabel}</span></td>
+      <td>
+        <button class="act-btn" onclick="viewDetail(${i})">Détail</button>
+        ${d.statut==='en_attente' ? `
+        <button class="act-btn val" onclick="validerInscription(${i})">✓ Valider</button>
+        <button class="act-btn del" onclick="refuserInscription(${i})">✗ Refuser</button>
+        ` : ''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function validerInscription(idx) {
+  if(!confirm('Valider ce médecin ? Son profil sera actif sur SantéPlus.')) return;
+  const data = loadInscriptions();
+  if(!data[idx]) return;
+  data[idx].statut = 'valide';
+  data[idx].dateValidation = new Date().toISOString();
+  // Ajouter aussi dans la liste des médecins actifs
+  try {
+    const meds = JSON.parse(localStorage.getItem('sp_medecins_actifs') || '[]');
+    meds.unshift({
+      id: data[idx].id,
+      nom: data[idx].titre + ' ' + data[idx].prenom + ' ' + data[idx].nom,
+      prenom: data[idx].prenom,
+      nomFamille: data[idx].nom,
+      specialite: data[idx].specialite,
+      ville: data[idx].ville,
+      quartier: data[idx].quartier,
+      repere: data[idx].repere,
+      cabinet: data[idx].cabinet,
+      telephone: data[idx].telephone,
+      cnamgs: data[idx].cnamgs === 'oui',
+      gpsLat: data[idx].gpsLat,
+      gpsLng: data[idx].gpsLng,
+      onmg: data[idx].onmg,
+      dateActivation: new Date().toISOString(),
+    });
+    localStorage.setItem('sp_medecins_actifs', JSON.stringify(meds));
+  } catch(e){}
+  saveInscriptions(data);
+  refreshInscriptions();
+  toast('✅ Médecin validé — profil actif sur SantéPlus !', 'ok');
+}
+
+function refuserInscription(idx) {
+  const raison = prompt('Motif du refus (optionnel) :');
+  if(raison === null) return; // annulé
+  const data = loadInscriptions();
+  if(!data[idx]) return;
+  data[idx].statut = 'refuse';
+  data[idx].motifRefus = raison;
+  data[idx].dateRefus = new Date().toISOString();
+  saveInscriptions(data);
+  refreshInscriptions();
+  toast('✗ Inscription refusée', 'err');
+}
+
+function viewDetail(idx) {
+  const data = loadInscriptions();
+  const d = data[idx];
+  if(!d) return;
+  document.getElementById('det-title').textContent = 'Dossier — ' + d.titre + ' ' + d.prenom + ' ' + d.nom;
+  const fields = [
+    ['Nom complet', d.titre+' '+d.prenom+' '+d.nom],
+    ['Téléphone', d.telephone],
+    ['Email', d.email||'—'],
+    ['Spécialité', d.specialite],
+    ['N° ONMG', d.onmg],
+    ['Expérience', d.experience],
+    ['Cabinet', d.cabinet],
+    ['Province', d.province],
+    ['Ville', d.ville],
+    ['Quartier', d.quartier],
+    ['Repère', d.repere],
+    ['GPS', d.gpsLat ? d.gpsLat.toFixed(5)+', '+d.gpsLng.toFixed(5) : 'Non renseigné'],
+    ['CNAMGS', d.cnamgs==='oui'?'Conventionné':'Non conventionné'],
+    ['Jours', (d.jours||[]).join(', ')],
+    ['Horaires matin', (d.matinDebut||'')+' → '+(d.matinFin||'')],
+    ['Horaires après-midi', (d.amDebut||'')+' → '+(d.amFin||'')],
+    ['Tarif consultation', d.tarif ? d.tarif+' FCFA' : '—'],
+    ['Documents', Object.keys(d.docs||{}).join(', ')||'—'],
+    ['Bio', d.bio||'—'],
+    ['Date inscription', new Date(d.dateInscription).toLocaleString('fr-FR')],
+    ['Statut', d.statut],
+  ];
+  document.getElementById('det-content').innerHTML = fields.map(([l,v])=>`
+    <div style="border-bottom:1px solid rgba(255,255,255,.05);padding:7px 0">
+      <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.28);letter-spacing:.5px;text-transform:uppercase;margin-bottom:2px">${l}</div>
+      <div style="font-size:11px;color:rgba(255,255,255,.75)">${v||'—'}</div>
+    </div>
+  `).join('');
+  document.getElementById('insc-detail').style.display = 'block';
+  document.getElementById('insc-detail').scrollIntoView({behavior:'smooth'});
+}
+
+function closeDetail() {
+  document.getElementById('insc-detail').style.display = 'none';
+}
+
+// ── INIT ──
+updateUserInfo();
+renderAll();
+refreshInscriptions();
+// Rafraîchir toutes les 30s pour détecter de nouvelles inscriptions
+setInterval(refreshInscriptions, 30000);
+</script>
+</body>
+</html>
