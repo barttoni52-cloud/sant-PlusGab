@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SantéPlus Gabon — Accueil</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00563C;--g2:#007A55;--g3:#D6EFE4;--g4:#EBF7F2;
+  --gold:#FCD116;--goldd:#A88A00;
+  --bl:#1849D6;--bll:#EBF0FF;
+  --red:#D93025;--redbg:#FFF0EF;
+  --ink:#0D1117;--ink2:#1F2937;--ink3:#4B5563;--ink4:#9CA3AF;
+  --bg:#F4F7F5;--card:#fff;--bdr:#E2E8E4;--bdr2:#EDF1EE;
+  --r8:8px;--r12:12px;--r16:16px;--r20:20px;
+  --sh:0 1px 4px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.05);
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+
+/* ── NAV ── */
+.nav{background:var(--g);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-sq{background:var(--gold);color:var(--g);width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:16px}
+.logo-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff}
+.logo-name em{color:var(--gold);font-style:normal}
+.nav-links{display:flex;gap:2px}
+.nl{background:transparent;border:none;color:rgba(255,255,255,.65);padding:7px 13px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;font-family:'Syne',sans-serif;transition:all .15s;text-decoration:none}
+.nl:hover{background:rgba(255,255,255,.13);color:#fff}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.btn-app{border:1.5px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:var(--r8);padding:8px 15px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-app:hover{background:rgba(255,255,255,.1)}
+.btn-rdv{background:var(--gold);color:var(--g);border:none;border-radius:var(--r8);padding:9px 18px;font-size:12px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.btn-rdv:hover{background:#e8c300}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(148deg,#002E20 0%,var(--g) 100%);padding:56px 32px 60px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;border-radius:50%;background:rgba(255,255,255,.025)}
+.hero::after{content:'🇬🇦';position:absolute;right:40px;bottom:20px;font-size:120px;opacity:.06;pointer-events:none}
+.hero-chip{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.11);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:6px 14px;font-size:11px;font-weight:700;color:rgba(255,255,255,.9);margin-bottom:18px;font-family:'Syne',sans-serif;letter-spacing:.3px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:46px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-1.2px;margin-bottom:12px;max-width:580px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero-sub{font-size:16px;color:rgba(255,255,255,.72);margin-bottom:30px;max-width:500px;line-height:1.65}
+.hero-search{background:#fff;border-radius:var(--r12);padding:10px;display:flex;gap:8px;max-width:640px;box-shadow:0 20px 56px rgba(0,0,0,.22)}
+.hs-f{display:flex;align-items:center;gap:8px;flex:1;border-right:1px solid var(--bdr);padding-right:10px}
+.hs-f input{border:none;outline:none;font-size:13px;color:var(--ink);background:transparent;width:100%;font-family:'DM Sans',sans-serif}
+.hs-f input::placeholder{color:var(--ink4)}
+.hs-sel{border:none;outline:none;font-size:12px;color:var(--ink);background:transparent;font-family:'DM Sans',sans-serif;padding:0 10px;cursor:pointer;min-width:130px}
+.hs-btn{background:var(--g);color:#fff;border:none;border-radius:var(--r8);padding:11px 24px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;white-space:nowrap}
+.hs-btn:hover{background:var(--g2)}
+.hero-trust{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap}
+.ht{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.6)}
+.ht-c{color:var(--gold)}
+
+/* ── STATS ── */
+.stats-bar{background:var(--ink);display:flex;overflow-x:auto;scrollbar-width:none}
+.stats-bar::-webkit-scrollbar{display:none}
+.sb-i{flex:1;min-width:80px;text-align:center;padding:18px 10px;border-right:1px solid rgba(255,255,255,.07)}
+.sb-i:last-child{border-right:none}
+.sb-n{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;color:var(--gold);line-height:1}
+.sb-l{font-size:9px;color:rgba(255,255,255,.38);margin-top:3px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+
+/* ── URGENCES ── */
+.urg-wrap{padding:24px 32px 0}
+.urg-bar{background:linear-gradient(135deg,#B91C1C,var(--red));border-radius:var(--r12);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;box-shadow:var(--sh)}
+.urg-l{display:flex;align-items:center;gap:14px}
+.urg-t{font-size:14px;font-weight:800;color:#fff}
+.urg-s{font-size:11px;color:rgba(255,255,255,.78);margin-top:2px}
+.urg-nums{display:flex;gap:8px}
+.urg-n{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:7px 16px;text-align:center}
+.urg-nv{font-size:15px;font-weight:800;color:#fff;font-family:monospace;line-height:1}
+.urg-nl{font-size:9px;color:rgba(255,255,255,.65);margin-top:2px}
+
+/* ── SECTION ── */
+.sec{padding:44px 32px}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--g2);margin-bottom:6px}
+.sec-h{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--ink);line-height:1.2;letter-spacing:-.5px;margin-bottom:5px}
+.sec-s{font-size:13px;color:var(--ink3);margin-bottom:22px}
+
+/* ── NEWS ── */
+.news-filter{display:flex;gap:7px;margin-bottom:20px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.news-filter::-webkit-scrollbar{display:none}
+.nf{border:1px solid var(--bdr);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--ink3);background:var(--bg);cursor:pointer;white-space:nowrap;font-family:'Syne',sans-serif;transition:all .15s}
+.nf:hover{border-color:var(--g);color:var(--g)}
+.nf.on{background:var(--g);color:#fff;border-color:var(--g)}
+.news-grid{display:grid;grid-template-columns:1.6fr 1fr;gap:16px;margin-bottom:16px}
+.news-main{grid-row:span 2}
+.art-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r16);overflow:hidden;cursor:pointer;transition:all .18s;box-shadow:var(--sh)}
+.art-card:hover{box-shadow:0 8px 28px rgba(0,86,60,.12);transform:translateY(-3px);border-color:var(--g3)}
+.art-img{display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.art-img-lg{height:240px}
+.art-img-sm{height:108px}
+.art-cat{position:absolute;top:10px;left:10px;font-size:9px;font-weight:800;padding:3px 9px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px}
+.c-actu{background:#FEE2E2;color:#991B1B}
+.c-cnamgs{background:#DBEAFE;color:#1E40AF}
+.c-reforme{background:var(--g3);color:#065F46}
+.c-conseil{background:#FEF9C3;color:#92400E}
+.c-sante{background:#F3EDFF;color:#5B21B6}
+.art-body{padding:16px;flex:1;display:flex;flex-direction:column}
+.art-t{font-size:14px;font-weight:700;color:var(--ink);line-height:1.4;margin-bottom:5px}
+.art-t-lg{font-size:16px}
+.art-ex{font-size:11px;color:var(--ink3);line-height:1.55;margin-bottom:10px;flex:1}
+.art-foot{display:flex;justify-content:space-between;font-size:10px;color:var(--ink4)}
+.art-src{display:flex;align-items:center;gap:4px;font-weight:600;color:var(--ink3)}
+.src-d{width:5px;height:5px;border-radius:50%;background:var(--g)}
+.art-sm{display:flex;gap:10px;padding:12px;align-items:flex-start}
+.art-sm-thumb{width:62px;height:62px;border-radius:var(--r8);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.art-sm-t{font-size:12px;font-weight:700;color:var(--ink);line-height:1.35;margin-bottom:4px}
+.art-sm-m{font-size:9px;color:var(--ink4);display:flex;justify-content:space-between}
+.see-more{width:100%;background:transparent;border:1.5px solid var(--g);color:var(--g);border-radius:var(--r10);padding:12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
+.see-more:hover{background:var(--g4)}
+
+/* ── CONSEILS ── */
+.conseils-sec{background:var(--g4)}
+.conseils-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.cc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r12);padding:18px;cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.cc:hover{border-color:var(--g);background:var(--g4)}
+.cc-ic{font-size:30px;margin-bottom:9px}
+.cc-t{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px}
+.cc-p{font-size:11px;color:var(--ink3);line-height:1.6}
+
+/* ── CNAMGS ── */
+.cnam-block{background:linear-gradient(145deg,var(--bl),#0D2FA0);border-radius:var(--r16);padding:28px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;box-shadow:0 8px 32px rgba(24,73,214,.25)}
+.cb-l{flex:1;min-width:200px}
+.cb-t{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:#fff;margin-bottom:7px}
+.cb-s{font-size:13px;color:rgba(255,255,255,.72);line-height:1.6;margin-bottom:16px}
+.cb-row{display:flex;gap:10px;flex-wrap:wrap}
+.cb-btn{background:var(--gold);color:var(--g);border:none;border-radius:var(--r8);padding:11px 22px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;display:flex;align-items:center;gap:7px}
+.cb-btn:hover{background:#e8c300}
+.cb-btn-sec{background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.25);color:#fff;border-radius:var(--r8);padding:11px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif}
+.cb-btn-sec:hover{background:rgba(255,255,255,.2)}
+.cb-r{display:flex;gap:10px}
+.cb-stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:14px 18px;text-align:center}
+.cb-sn{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--gold);line-height:1}
+.cb-sl{font-size:10px;color:rgba(255,255,255,.52);margin-top:3px}
+
+/* ── FOOTER ── */
+.footer{background:var(--ink);padding:40px 32px 22px}
+.f-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;margin-bottom:28px}
+.f-n{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:10px}
+.f-n em{color:var(--gold);font-style:normal}
+.f-t{font-size:11px;color:rgba(255,255,255,.42);line-height:1.8}
+.f-ct{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:12px}
+.f-a{display:block;font-size:12px;color:rgba(255,255,255,.5);margin-bottom:8px;cursor:pointer;text-decoration:none;transition:color .15s}
+.f-a:hover{color:#fff}
+.f-bot{border-top:1px solid rgba(255,255,255,.07);padding-top:18px;display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.22)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--g);color:#fff;border-radius:var(--r10);padding:11px 18px;font-size:12px;font-weight:700;display:none;align-items:center;gap:7px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:999}
+.toast.show{display:flex}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="santeplus_site.html" class="logo">
+    <div class="logo-sq">S+</div>
+    <div class="logo-name">Santé<em>Plus</em> <span style="font-size:11px;opacity:.4;font-weight:300">Gabon</span></div>
+  </a>
+  <div class="nav-links">
+    <a href="santeplus_site.html" class="nl">Accueil</a>
+    <a href="santeplus_app.html" class="nl">Médecins</a>
+    <a class="nl" href="#">Actualités</a>
+    <a class="nl" href="#">CNAMGS</a>
+    <a class="nl" href="#">Structures</a>
+  </div>
+  <div class="nav-actions">
+    <a href="santeplus_app.html" class="btn-app">📱 Application</a>
+    <a href="santeplus_app.html" class="btn-rdv">Prendre RDV</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-chip"><div class="live-dot"></div>Plateforme médicale nationale — République Gabonaise</div>
+  <h1>Votre santé,<br><em>prise en charge</em><br>au Gabon</h1>
+  <p class="hero-sub">Trouvez un médecin, réservez en ligne, suivez vos remboursements CNAMGS. Disponible dans les 9 provinces.</p>
+  <div class="hero-search">
+    <div class="hs-f">
+      <span style="font-size:17px;color:var(--ink4)">🔍</span>
+      <input type="text" placeholder="Spécialité, médecin, symptôme...">
+    </div>
+    <select class="hs-sel">
+      <option>Toutes les villes</option>
+      <option>Libreville</option><option>Port-Gentil</option>
+      <option>Franceville</option><option>Oyem</option>
+      <option>Lambaréné</option><option>Mouila</option>
+    </select>
+    <button class="hs-btn" onclick="window.location.href='santeplus_app.html'">Rechercher</button>
+  </div>
+  <div class="hero-trust">
+    <div class="ht"><span class="ht-c">✓</span> Médecins vérifiés ONMG</div>
+    <div class="ht"><span class="ht-c">✓</span> Conventionnés CNAMGS</div>
+    <div class="ht"><span class="ht-c">✓</span> SMS de confirmation</div>
+    <div class="ht"><span class="ht-c">✓</span> 9 provinces couvertes</div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="sb-i"><div class="sb-n">247</div><div class="sb-l">Médecins</div></div>
+  <div class="sb-i"><div class="sb-n">42</div><div class="sb-l">Structures</div></div>
+  <div class="sb-i"><div class="sb-n">12 840</div><div class="sb-l">Patients</div></div>
+  <div class="sb-i"><div class="sb-n">9</div><div class="sb-l">Provinces</div></div>
+  <div class="sb-i"><div class="sb-n">1.6M</div><div class="sb-l">Assurés CNAMGS</div></div>
+</div>
+
+<!-- URGENCES -->
+<div class="urg-wrap">
+  <div class="urg-bar">
+    <div class="urg-l">
+      <span style="font-size:28px">🚨</span>
+      <div><div class="urg-t">Urgences médicales — Gabon</div><div class="urg-s">CHU Libreville · CHU Angondjé · CHU Owendo — Ouverts 24h/24</div></div>
+    </div>
+    <div class="urg-nums">
+      <div class="urg-n"><div class="urg-nv">1500</div><div class="urg-nl">SAMU</div></div>
+      <div class="urg-n"><div class="urg-nv">1300</div><div class="urg-nl">Pompiers</div></div>
+      <div class="urg-n"><div class="urg-nv">1730</div><div class="urg-nl">Police</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTUALITÉS -->
+<div class="sec">
+  <div class="sec-lbl">Actualités</div>
+  <div class="sec-h">Santé au Gabon</div>
+  <div class="sec-s">Informations officielles · Sources vérifiées · Mises à jour par la rédaction SantéPlus</div>
+  <div class="news-filter">
+    <button class="nf on" onclick="filterNews('',this)">Toutes</button>
+    <button class="nf" onclick="filterNews('actu',this)">Actualité</button>
+    <button class="nf" onclick="filterNews('cnamgs',this)">CNAMGS</button>
+    <button class="nf" onclick="filterNews('reforme',this)">Réformes</button>
+    <button class="nf" onclick="filterNews('sante',this)">Santé publique</button>
+    <button class="nf" onclick="filterNews('conseil',this)">Conseils</button>
+  </div>
+  <div class="news-grid" id="news-grid"></div>
+  <button class="see-more" id="see-more" onclick="toggleMore()">Voir toutes les actualités →</button>
+</div>
+
+<!-- CONSEILS -->
+<div class="sec conseils-sec">
+  <div class="sec-lbl">Prévention & bien-être</div>
+  <div class="sec-h">Conseils santé</div>
+  <div class="sec-s">Recommandations du Ministère de la Santé adaptées aux réalités gabonaises</div>
+  <div class="conseils-grid" id="conseils-grid"></div>
+</div>
+
+<!-- CNAMGS -->
+<div class="sec">
+  <div class="cnam-block">
+    <div class="cb-l">
+      <div class="cb-t">Votre couverture CNAMGS expliquée</div>
+      <div class="cb-s">Vérifiez vos droits, comprenez vos remboursements, trouvez les médecins conventionnés près de chez vous. Lié au portail officiel e-CNAMGS.</div>
+      <div class="cb-row">
+        <button class="cb-btn" onclick="openECNAMGS()">🛡 Accéder à e-CNAMGS</button>
+        <button class="cb-btn-sec" onclick="window.location.href='santeplus_app.html'">Lier mon NAG sur l'app</button>
+      </div>
+    </div>
+    <div class="cb-r">
+      <div class="cb-stat"><div class="cb-sn">80%</div><div class="cb-sl">Maladie ordinaire</div></div>
+      <div class="cb-stat"><div class="cb-sn">90%</div><div class="cb-sl">Longue durée</div></div>
+      <div class="cb-stat"><div class="cb-sn">100%</div><div class="cb-sl">Accouchement</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA MÉDECINS -->
+<div class="site-sec" style="background:var(--gold);padding-top:36px;padding-bottom:36px">
+  <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:24px;flex-wrap:wrap">
+    <div>
+      <div class="sec-eyebrow" style="color:var(--goldd)">Vous êtes médecin ?</div>
+      <div class="sec-heading" style="font-size:24px;color:var(--ink)">Rejoignez le réseau SantéPlus</div>
+      <div style="font-size:13px;color:var(--ink2);margin-top:4px">Inscription gratuite · Validation sous 48h · Agenda géré automatiquement</div>
+    </div>
+    <a href="santeplus_inscription_medecin.html" style="background:var(--g);color:#fff;border:none;border-radius:12px;padding:14px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:Syne,sans-serif;text-decoration:none;white-space:nowrap;display:inline-block">Inscrivez-vous →</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="f-grid">
+    <div>
+      <div class="f-n">Santé<em>Plus</em> Gabon</div>
+      <div class="f-t">
+        La première plateforme gabonaise de prise de rendez-vous médicaux en ligne.<br>
+        Pensée pour les réalités gabonaises.<br><br>
+        📧 <a href="mailto:Bartonimoutete@gmail.com" style="color:rgba(255,255,255,.55);text-decoration:none">Bartonimoutete@gmail.com</a><br>
+        📞 +241 07 55 87 83 82<br>
+        📍 Libreville, République Gabonaise
+      </div>
+    </div>
+    <div>
+      <div class="f-ct">Patients</div>
+      <a href="santeplus_app.html" class="f-a">Trouver un médecin</a>
+      <a href="santeplus_app.html" class="f-a">Mes rendez-vous</a>
+      <a href="santeplus_app.html" class="f-a">Mon espace CNAMGS</a>
+      <a href="#" onclick="openECNAMGS()" class="f-a">Portail e-CNAMGS ↗</a>
+    </div>
+    <div>
+      <div class="f-ct">Médecins</div>
+      <a href="santeplus_inscription_medecin.html" class="f-a">Rejoindre le réseau →</a>
+      <a href="#" class="f-a">Gérer mon agenda</a>
+      <a href="#" class="f-a">Vérification ONMG</a>
+      <a href="#" class="f-a">Support médecins</a>
+    </div>
+    <div>
+      <div class="f-ct">SantéPlus</div>
+      <a href="#" class="f-a">À propos</a>
+      <a href="#" class="f-a">Partenariat CNAMGS</a>
+      <a href="santeplus_login.html" class="f-a" style="opacity:.4;font-size:10px">Espace administration →</a>
+    </div>
+  </div>
+  <div class="f-bot">
+    <span>© 2026 SantéPlus Gabon. Tous droits réservés.</span>
+    <span>Fait au Gabon 🇬🇦 · <em style="color:rgba(252,209,22,.5)">"La solidarité a un sens."</em></span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const CATGRAD={actu:'linear-gradient(135deg,#FFF0EF,#FECACA)',cnamgs:'linear-gradient(135deg,#EBF0FF,#BFDBFE)',reforme:'linear-gradient(135deg,#D6EFE4,#A7F3D0)',conseil:'linear-gradient(135deg,#FEF9C3,#FDE68A)',sante:'linear-gradient(135deg,#F3EDFF,#DDD6FE)'};
+const CATLAB={actu:'Actualité',cnamgs:'CNAMGS',reforme:'Réforme santé',conseil:'Conseil',sante:'Santé publique'};
+const CATCLS={actu:'c-actu',cnamgs:'c-cnamgs',reforme:'c-reforme',conseil:'c-conseil',sante:'c-sante'};
+
+// Articles — partagés avec l'admin via localStorage
+function getArticles(){
+  try{
+    const stored=localStorage.getItem('sp_articles');
+    if(stored) return JSON.parse(stored);
+  }catch(e){}
+  return DEFAULT_ARTICLES;
+}
+
+const DEFAULT_ARTICLES=[
+  {id:1,title:"Oligui Nguema : \"Aucun Gabonais ne devrait avoir peur d'aller à l'hôpital\"",excerpt:"Le président a répondu aux questions sur les dysfonctionnements de la CNAMGS et l'état des structures hospitalières lors d'une grande interview à L'Union.",cat:'actu',source:'GabonReview',date:'04/05/2026',statut:'pub',vues:824,icon:'🏥',featured:true},
+  {id:2,title:"Dialyse prise en charge à 100% par la CNAMGS",excerpt:"Le Pr Elsa Ayo Bivigou annonce la fin de la rupture de consommables et la prise en charge intégrale, avec l'ambition de doter chaque province d'un centre de dialyse.",cat:'cnamgs',source:'GabonReview',date:'13/02/2026',statut:'pub',vues:1240,icon:'🛡',featured:true},
+  {id:3,title:"Journée mondiale de la santé 2026 : \"La science, socle de l'action sanitaire\"",excerpt:"Sous le thème Unissons-nous pour la santé, le Gabon a réaffirmé son engagement à fonder son système de santé sur des données probantes.",cat:'reforme',source:'Infos Gabon',date:'09/04/2026',statut:'pub',vues:412,icon:'🔬',featured:false},
+  {id:4,title:"Urgences gratuites 24h : la mesure forte de la ministre Ayo Bivigou",excerpt:"Gratuité totale de la prise en charge des urgences durant les 24 premières heures, médicaments compris, pour les plus vulnérables.",cat:'reforme',source:'GabonReview',date:'13/02/2026',statut:'pub',vues:956,icon:'🚨',featured:true},
+  {id:5,title:"CNAMGS : mise en demeure des structures non conformes pour les dossiers 2026",excerpt:"La CNAMGS somme les établissements de transmettre les dossiers de leurs praticiens prescripteurs sous peine de suspension.",cat:'cnamgs',source:'GabonReview',date:'02/03/2026',statut:'pub',vues:678,icon:'⚠️',featured:false},
+  {id:6,title:"Caravane médico-sociale à Owendo : l'hôpital va vers les populations",excerpt:"Des médecins du CHU Owendo ont assuré consultations gratuites, vaccinations et dépistages dans le cadre des caravanes de proximité.",cat:'sante',source:'GabonReview',date:'25/02/2026',statut:'pub',vues:321,icon:'🌿',featured:false},
+  {id:7,title:"CNAMGS dément la pénurie de feuilles de soins au CHU Owendo",excerpt:"Face aux rumeurs, la CNAMGS assure que les prestations se poursuivent normalement et appelle les usagers à consulter ses canaux officiels.",cat:'actu',source:'Infos Gabon',date:'25/03/2026',statut:'pub',vues:289,icon:'📋',featured:false},
+];
+
+let curFilter='',showAll=false;
+
+function filterNews(cat,el){
+  curFilter=cat;showAll=false;
+  document.querySelectorAll('.nf').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderNews();
+}
+function toggleMore(){showAll=!showAll;renderNews();}
+
+function renderNews(){
+  const arts=getArticles();
+  const pub=arts.filter(a=>a.statut==='pub'&&(!curFilter||a.cat===curFilter));
+  const shown=showAll?pub:pub.slice(0,5);
+  const main=shown.filter(a=>a.featured)[0];
+  const rest=shown.filter(a=>!main||a.id!==main.id);
+  let html='';
+  if(main){
+    html+=`<div class="art-card news-main">
+      <div class="art-img art-img-lg" style="background:${CATGRAD[main.cat]||'var(--g4)'}">
+        <span style="font-size:58px">${main.icon}</span>
+        <span class="art-cat ${CATCLS[main.cat]||'c-actu'}">${CATLAB[main.cat]||main.cat}</span>
+      </div>
+      <div class="art-body">
+        <div class="art-t art-t-lg">${main.title}</div>
+        <div class="art-ex">${main.excerpt}</div>
+        <div class="art-foot">
+          <div class="art-src"><div class="src-d"></div>${main.source}</div>
+          <span>${main.date}</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  rest.slice(0,4).forEach(a=>{
+    html+=`<div class="art-card">
+      <div class="art-sm">
+        <div class="art-sm-thumb" style="background:${CATGRAD[a.cat]||'var(--g4)'}">${a.icon}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:8px;font-weight:800;color:${a.cat==='actu'?'#991B1B':a.cat==='cnamgs'?'#1E40AF':'#065F46'};margin-bottom:3px;text-transform:uppercase;letter-spacing:.5px">${CATLAB[a.cat]||a.cat}</div>
+          <div class="art-sm-t">${a.title}</div>
+          <div class="art-sm-m"><span style="font-weight:600;color:var(--ink3)">${a.source}</span><span>${a.date}</span></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  if(!html) html='<div style="grid-column:1/-1;text-align:center;padding:28px;color:var(--ink4);font-size:13px">Aucun article dans cette catégorie pour le moment.</div>';
+  document.getElementById('news-grid').innerHTML=html;
+  document.getElementById('see-more').textContent=showAll?'← Réduire':'Voir toutes les actualités →';
+}
+
+const CONSEILS=[
+  {ic:'🦟',t:'Prévention du paludisme',p:'Dormez sous moustiquaire imprégnée. Distribution gratuite dans les hôpitaux publics et lors des caravanes médicales.'},
+  {ic:'💉',t:'Vaccination des enfants',p:'Le calendrier vaccinal OMS est gratuit au Gabon. Consultez votre centre de santé pour mettre à jour le carnet de vaccination.'},
+  {ic:'🩸',t:'Dépistage du diabète',p:'Bilan glycémique annuel disponible dans tous les CHU et centres de santé conventionnés CNAMGS.'},
+  {ic:'🤰',t:'Suivi de grossesse',p:'Pris en charge à 100% par la CNAMGS. 3 échographies remboursées. Déclarez votre grossesse dès le 3e mois.'},
+  {ic:'🫀',t:'Hypertension artérielle',p:'Mesures disponibles gratuitement en pharmacie. Consultez un médecin conventionné CNAMGS en cas de tension répétée.'},
+  {ic:'🧴',t:'Hygiène des mains',p:'Le geste le plus efficace contre les infections. Savon et eau propre suffisent à éliminer la majorité des germes.'},
+];
+
+function renderConseils(){
+  document.getElementById('conseils-grid').innerHTML=CONSEILS.map(c=>`
+    <div class="cc"><div class="cc-ic">${c.ic}</div><div class="cc-t">${c.t}</div><div class="cc-p">${c.p}</div></div>
+  `).join('');
+}
+
+function openECNAMGS(){
+  window.open('https://ecnamgs.cnamgs.ga','_blank','noopener,noreferrer');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+renderNews();
+renderConseils();
+// Reload news when returning from admin (storage may have changed)
+window.addEventListener('focus',()=>renderNews());
+</script>
+</body>
+</html>
