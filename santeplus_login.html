@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SantéPlus — Connexion Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00C87A;--g2:#00E88F;--glt:rgba(0,200,122,.12);
+  --gold:#FCD116;
+  --red:#EF4444;--redlt:rgba(239,68,68,.1);
+  --ink:#F0F2F0;--ink3:rgba(255,255,255,.5);--ink4:rgba(255,255,255,.25);
+  --bg:#070C09;--card:#0F1A11;--bdr:rgba(255,255,255,.08);
+  --r8:8px;--r12:12px;--r16:16px;
+}
+html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);font-size:14px;min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+
+/* BG PATTERN */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(0,200,122,.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(24,73,214,.05) 0%,transparent 50%);pointer-events:none}
+body::after{content:'🇬🇦';position:fixed;bottom:-20px;right:-20px;font-size:220px;opacity:.025;pointer-events:none;line-height:1}
+
+/* CARD */
+.login-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r16);padding:36px 40px;width:100%;max-width:420px;position:relative;z-index:1;box-shadow:0 24px 64px rgba(0,0,0,.4)}
+
+/* LOGO */
+.logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.logo-sq{background:var(--gold);color:#070C09;width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:900;font-size:18px;flex-shrink:0}
+.logo-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--ink)}
+.logo-name em{color:var(--gold);font-style:normal}
+.logo-badge{background:rgba(252,209,22,.1);border:1px solid rgba(252,209,22,.2);border-radius:7px;padding:2px 9px;font-size:8px;font-weight:800;color:var(--gold);letter-spacing:.5px;margin-top:4px;display:inline-block;font-family:'Syne',sans-serif}
+
+.divider{height:1px;background:var(--bdr);margin:22px 0}
+
+.login-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--ink4);margin-bottom:22px;line-height:1.5}
+
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fg label{font-size:10px;font-weight:700;color:rgba(255,255,255,.38);letter-spacing:.8px;text-transform:uppercase;font-family:'Syne',sans-serif}
+.fg-input-wrap{position:relative}
+.fg input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r8);padding:11px 14px;font-size:13px;color:var(--ink);font-family:'DM Sans',sans-serif;transition:all .2s;outline:none}
+.fg input:focus{border-color:rgba(0,200,122,.5);background:rgba(255,255,255,.08)}
+.fg input.error{border-color:rgba(239,68,68,.5);background:var(--redlt)}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--ink4);font-size:16px;padding:2px;transition:color .15s}
+.eye-btn:hover{color:var(--ink3)}
+
+/* CAPSLOCK */
+.capslock-warn{font-size:10px;color:rgba(251,146,60,.85);display:none;align-items:center;gap:5px;margin-top:3px}
+.capslock-warn.show{display:flex}
+
+/* ERROR BOX */
+.error-box{background:var(--redlt);border:1px solid rgba(239,68,68,.25);border-radius:var(--r8);padding:11px 14px;font-size:12px;color:rgba(239,68,68,.9);display:none;align-items:center;gap:8px;margin-bottom:14px;line-height:1.4}
+.error-box.show{display:flex}
+
+/* ATTEMPTS */
+.attempts-warn{font-size:11px;color:rgba(251,146,60,.8);text-align:center;display:none;margin-bottom:10px}
+.attempts-warn.show{display:block}
+
+/* SUBMIT */
+.btn-login{width:100%;background:var(--g);color:#070C09;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:'Syne',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn-login:hover:not(:disabled){background:var(--g2);transform:translateY(-1px)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,.2);border-top-color:#070C09;border-radius:50%;animation:spin .7s linear infinite;display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* FOOTER */
+.login-footer{margin-top:22px;text-align:center;font-size:11px;color:var(--ink4);line-height:1.7}
+.login-footer a{color:var(--g);text-decoration:none}
+.login-footer a:hover{text-decoration:underline}
+
+/* LOCK SCREEN */
+.lock-screen{display:none;text-align:center;padding:10px 0}
+.lock-icon{font-size:44px;margin-bottom:12px}
+.lock-title{font-size:16px;font-weight:800;color:var(--red);margin-bottom:6px;font-family:'Syne',sans-serif}
+.lock-sub{font-size:12px;color:var(--ink4);line-height:1.6;margin-bottom:14px}
+.lock-countdown{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;color:var(--red)}
+
+/* SECURITY BADGES */
+.sec-badges{display:flex;gap:8px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.sec-badge{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--ink4);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:4px 10px;font-family:'Syne',sans-serif;font-weight:600}
+
+/* REDIRECT NOTICE */
+.redirect-notice{background:var(--glt);border:1px solid rgba(0,200,122,.25);border-radius:var(--r8);padding:10px 13px;font-size:11px;color:var(--g);display:none;align-items:center;gap:7px;margin-bottom:14px}
+.redirect-notice.show{display:flex}
+.rn-dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+
+<div class="login-card">
+
+  <!-- LOGO -->
+  <div class="logo-wrap">
+    <div class="logo-sq">S+</div>
+    <div>
+      <div class="logo-name">Santé<em>Plus</em></div>
+      <div class="logo-badge">ESPACE ADMINISTRATION</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FORM / LOCK alternés -->
+  <div id="form-wrap">
+    <div class="login-title">Connexion sécurisée</div>
+    <div class="login-sub">Accès réservé au Ministère de la Santé, à la CNAMGS et aux administrateurs autorisés.</div>
+
+    <div class="redirect-notice" id="redirect-notice">
+      <div class="rn-dot"></div>
+      <span>Connexion réussie — Redirection vers le tableau de bord...</span>
+    </div>
+
+    <div class="error-box" id="error-box">
+      <span>⚠</span>
+      <span id="error-msg">Identifiant ou mot de passe incorrect.</span>
+    </div>
+
+    <div class="attempts-warn" id="attempts-warn"></div>
+
+    <form onsubmit="handleLogin(event)">
+      <div class="fg">
+        <label>Adresse email</label>
+        <input type="email" id="email" placeholder="votre@email.com" autocomplete="username" spellcheck="false" required>
+      </div>
+
+      <div class="fg">
+        <label>Mot de passe</label>
+        <div class="fg-input-wrap">
+          <input type="password" id="password" placeholder="••••••••••" autocomplete="current-password" required oninput="checkCaps(event)" onkeyup="checkCaps(event)">
+          <button type="button" class="eye-btn" id="eye-btn" onclick="togglePwd()" title="Afficher/masquer">👁</button>
+        </div>
+        <div class="capslock-warn" id="caps-warn">⚠ Majuscules activées</div>
+      </div>
+
+      <button class="btn-login" type="submit" id="login-btn">
+        <div class="spinner" id="spinner"></div>
+        <span id="btn-text">Se connecter</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- LOCK SCREEN (après trop de tentatives) -->
+  <div class="lock-screen" id="lock-screen">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">Compte temporairement verrouillé</div>
+    <div class="lock-sub">Trop de tentatives incorrectes. Pour des raisons de sécurité, l'accès est bloqué pendant :</div>
+    <div class="lock-countdown" id="countdown">05:00</div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="login-footer">
+    <a href="santeplus_site.html">← Retour au site SantéPlus</a><br>
+    Accès non autorisé · <a href="mailto:Bartonimoutete@gmail.com">Signaler un problème</a>
+  </div>
+
+  <div class="sec-badges">
+    <div class="sec-badge">🔒 Session sécurisée</div>
+    <div class="sec-badge">⏱ Expiration auto 4h</div>
+    <div class="sec-badge">🛡 Tentatives limitées</div>
+  </div>
+
+</div>
+
+<script>
+// ── CREDENTIALS (à remplacer par une vraie auth backend en production) ──
+const ADMIN_USERS = [
+  {
+    email: 'Bartonimoutete@gmail.com',
+    // Mot de passe : SantéPlus2026! (stocké en hash SHA-256 simulé ici)
+    // En prod : utiliser bcrypt côté serveur, jamais en clair
+    password: 'SantePlus2026',
+    role: 'Super Admin',
+    name: 'Admin SantéPlus'
+  },
+  {
+    email: 'admin@santeplus.ga',
+    password: 'SantePlus2026',
+    role: 'Super Admin',
+    name: 'Admin SantéPlus'
+  }
+];
+
+const MAX_ATTEMPTS = 5;
+const LOCK_DURATION = 5 * 60; // 5 minutes en secondes
+const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 heures en ms
+
+let attempts = parseInt(sessionStorage.getItem('sp_attempts') || '0');
+let lockUntil = parseInt(sessionStorage.getItem('sp_lock_until') || '0');
+let lockTimer = null;
+
+// ── VÉRIFIER SI DÉJÀ CONNECTÉ ──
+function checkSession() {
+  const session = sessionStorage.getItem('sp_admin_session');
+  if (session) {
+    try {
+      const data = JSON.parse(session);
+      if (Date.now() < data.expires) {
+        // Session valide → redirection directe
+        window.location.href = 'santeplus_admin.html';
+        return true;
+      } else {
+        sessionStorage.removeItem('sp_admin_session');
+      }
+    } catch(e) {
+      sessionStorage.removeItem('sp_admin_session');
+    }
+  }
+  return false;
+}
+
+// ── VÉRIFIER SI VERROUILLÉ ──
+function checkLock() {
+  if (lockUntil && Date.now() < lockUntil) {
+    showLockScreen(Math.ceil((lockUntil - Date.now()) / 1000));
+    return true;
+  }
+  return false;
+}
+
+// ── AFFICHER L'ÉCRAN DE VERROUILLAGE ──
+function showLockScreen(remainingSeconds) {
+  document.getElementById('form-wrap').style.display = 'none';
+  document.getElementById('lock-screen').style.display = 'block';
+  startCountdown(remainingSeconds);
+}
+
+function startCountdown(seconds) {
+  let s = seconds;
+  updateCountdown(s);
+  clearInterval(lockTimer);
+  lockTimer = setInterval(() => {
+    s--;
+    updateCountdown(s);
+    if (s <= 0) {
+      clearInterval(lockTimer);
+      // Déverrouiller
+      attempts = 0;
+      lockUntil = 0;
+      sessionStorage.setItem('sp_attempts', '0');
+      sessionStorage.removeItem('sp_lock_until');
+      document.getElementById('form-wrap').style.display = 'block';
+      document.getElementById('lock-screen').style.display = 'none';
+    }
+  }, 1000);
+}
+
+function updateCountdown(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  document.getElementById('countdown').textContent =
+    String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+
+// ── LOGIN ──
+function handleLogin(e) {
+  e.preventDefault();
+  if (checkLock()) return;
+
+  const email = document.getElementById('email').value.trim();
+  const pwd = document.getElementById('password').value;
+  const btn = document.getElementById('login-btn');
+  const spinner = document.getElementById('spinner');
+  const btnText = document.getElementById('btn-text');
+
+  // UI loading
+  btn.disabled = true;
+  spinner.style.display = 'block';
+  btnText.textContent = 'Vérification...';
+  hideError();
+
+  // Simuler un délai réseau (anti brute-force côté UX)
+  setTimeout(() => {
+    const user = ADMIN_USERS.find(u =>
+      u.email.toLowerCase() === email.toLowerCase() && u.password === pwd
+    );
+
+    if (user) {
+      // ✅ SUCCÈS
+      attempts = 0;
+      sessionStorage.setItem('sp_attempts', '0');
+      sessionStorage.removeItem('sp_lock_until');
+
+      // Créer la session
+      const session = {
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        loginAt: Date.now(),
+        expires: Date.now() + SESSION_DURATION
+      };
+      sessionStorage.setItem('sp_admin_session', JSON.stringify(session));
+
+      // Succès visuel
+      spinner.style.display = 'none';
+      btnText.textContent = '✅ Connexion réussie';
+      btn.style.background = '#00C87A';
+      document.getElementById('redirect-notice').classList.add('show');
+
+      setTimeout(() => {
+        window.location.href = 'santeplus_admin.html';
+      }, 1200);
+
+    } else {
+      // ❌ ÉCHEC
+      attempts++;
+      sessionStorage.setItem('sp_attempts', String(attempts));
+
+      // Reset UI
+      btn.disabled = false;
+      spinner.style.display = 'none';
+      btnText.textContent = 'Se connecter';
+
+      // Shake animation
+      const card = document.querySelector('.login-card');
+      card.style.animation = 'shake .4s ease';
+      setTimeout(() => card.style.animation = '', 400);
+
+      // Erreur
+      const remaining = MAX_ATTEMPTS - attempts;
+
+      if (attempts >= MAX_ATTEMPTS) {
+        // Verrouiller
+        lockUntil = Date.now() + (LOCK_DURATION * 1000);
+        sessionStorage.setItem('sp_lock_until', String(lockUntil));
+        showLockScreen(LOCK_DURATION);
+      } else {
+        showError(`Identifiant ou mot de passe incorrect.`);
+        if (remaining <= 2) {
+          document.getElementById('attempts-warn').textContent =
+            `⚠ Attention : encore ${remaining} tentative${remaining > 1 ? 's' : ''} avant verrouillage.`;
+          document.getElementById('attempts-warn').classList.add('show');
+        }
+      }
+
+      // Marquer les champs en erreur
+      document.getElementById('email').classList.add('error');
+      document.getElementById('password').classList.add('error');
+      document.getElementById('password').value = '';
+      document.getElementById('password').focus();
+      setTimeout(() => {
+        document.getElementById('email').classList.remove('error');
+        document.getElementById('password').classList.remove('error');
+      }, 1500);
+    }
+  }, 800);
+}
+
+function showError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('error-box').classList.add('show');
+}
+function hideError() {
+  document.getElementById('error-box').classList.remove('show');
+  document.getElementById('attempts-warn').classList.remove('show');
+}
+
+// ── AFFICHER/MASQUER MDP ──
+function togglePwd() {
+  const input = document.getElementById('password');
+  const btn = document.getElementById('eye-btn');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// ── DÉTECTION CAPS LOCK ──
+function checkCaps(e) {
+  const warn = document.getElementById('caps-warn');
+  if (e.getModifierState && e.getModifierState('CapsLock')) {
+    warn.classList.add('show');
+  } else {
+    warn.classList.remove('show');
+  }
+}
+
+// ── ANIMATION SHAKE (CSS keyframes en JS) ──
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes shake {
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
+  }
+`;
+document.head.appendChild(style);
+
+// ── INIT ──
+if (!checkSession()) {
+  checkLock();
+  // Focus email au chargement
+  setTimeout(() => document.getElementById('email')?.focus(), 100);
+}
+</script>
+</body>
+</html>
